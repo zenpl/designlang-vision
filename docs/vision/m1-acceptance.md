@@ -193,3 +193,62 @@ After running, jot what you saw in this doc under a new `## Run log` section (da
 - The first 400-temperature failure is a reminder that the `claude-api` skill's "sampling parameters removed on Opus 4.7" is a real and silent breaking change — keep an eye on future opus releases.
 
 **Output:** `out/m1-opus/m1-opus-observations.json` (gitignored).
+
+### 2026-05-20 — 10-image moodboard, M1 + M2 full pipeline, sonnet-4-6 — PASS (and revealed cluster-over-heuristic)
+
+**Setup:** User expanded `tests/assets/` to 10 images (`1..10.jpeg`). Ran the full pipeline:
+```
+node bin/design-extract.js moodboard ./tests/assets -o ./out/m12-10img-sonnet -n m12-sonnet --model claude-sonnet-4-6
+```
+10/10 M1 ok, M2 synthesized in 106.8 s, 0 errors.
+
+**Result: LLM merged heuristic's 10 singletons → 5 real clusters.**
+
+This is the first real cluster-over-heuristic test (the 3-image fixture didn't stress it — all images were maximally distinct and the heuristic correctly proposed 3). On this 10-image board:
+
+- **Heuristic max pairwise similarity was 0.226** — well below the 0.55 cluster threshold. The heuristic therefore proposed 10 singleton clusters, doing nothing useful on its own.
+- **LLM synthesis then merged into 5 named clusters** based on the actual observation content, not the heuristic structure:
+
+| Cluster | Weight | Source ids |
+|---|---|---|
+| Matte Clay 3D Botanical Diorama UI | 0.35 | img_01, img_02, img_05, img_07 |
+| Neumorphic Soft-Extrusion Mobile UI | 0.20 | img_08, img_09 |
+| Editorial Botanical Commerce (Light Background) | 0.15 | img_04, img_08 |
+| Dark Forest-Green Botanical Product Showcase | 0.20 | img_06, img_10 |
+| Artisanal Flat Parchment Café UI | 0.10 | img_03 |
+
+**Notable: `img_08` is in TWO clusters.** The model judged it carries both Neumorphic and Editorial-Commerce features and labeled both. The schema permits this (no across-cluster uniqueness constraint on sourceIds; weights still sum to 1.0). This is honest annotation of a boundary-straddling image — better than forcing it into one bucket arbitrarily.
+
+**Consensus claims show the discipline working** — 14 claims across 6 sections, with support counts ranging from 6/10 to 10/10:
+
+| Section | Claim (truncated) | Support count | Confidence |
+|---|---|---|---|
+| materials | "Matte opaque surfaces — no frosted glass, no backdrop-filter blur" | 9/10 | 0.96 |
+| materials | "Botanical elements are the universal decorative material" | **10/10** | 0.98 |
+| lighting | "Upper-left soft diffuse key light dominant for 3D-rendered clusters" | 7/10 | 0.91 |
+| depth | "Boundary-breaking overflow recurring depth signature" | 8/10 | 0.90 |
+| depth | "Soft diffuse cast shadows (not hard drop shadows)" | 8/10 | 0.88 |
+| palette | "Desaturated sage/forest green dominant brand hue" | 9/10 | 0.95 |
+| palette | "Low-to-medium saturation throughout" | 7/10 | 0.88 |
+| palette | "White or near-white universal neutral surface" | 8/10 | 0.92 |
+| components | "Pill/stadium-shaped buttons" | 8/10 | 0.89 |
+| components | "Rounded rectangle cards (12–24px radius)" | 9/10 | 0.93 |
+| components | "Geometric sans-serif body/label typeface" | 9/10 | 0.87 |
+| implementationRules | "overflow:visible on cards" | 7/10 | 0.93 |
+| implementationRules | "Never apply frosted glass / backdrop-filter blur" | 8/10 | 0.97 |
+| implementationRules | "Absolutely-positioned PNG/SVG botanical cutouts" | 6/10 | 0.85 |
+
+Only ONE claim is 10/10 universal ("botanical elements"). All others have partial support, properly recorded. This is the schema discipline biting in the right way — claims rooted in clusters don't get falsely elevated to "universal".
+
+**Confidence:** overall 0.87; per-cluster [0.91, 0.94, 0.88, 0.88, 0.93]. The boundary-straddling clusters (Editorial Commerce, Dark-Forest at 0.88) correctly scored lower than the materially-clean Neumorphic one (0.94).
+
+**Cost & latency:**
+- M1 sonnet (10 imgs): cache write 3336 on img 1, 30024 read across imgs 2–10 (cache hitting consistently). ~$0.20 estimated.
+- M2 sonnet (1 synthesis call): cache write 2306, 0 read (first synthesis). Latency 106.8 s. ~$0.10 estimated.
+- Total: ~$0.30.
+
+**Follow-ups (M2 polish, low priority):**
+- The heuristic threshold (0.55) is too strict for real moodboards. Even visually-related images share <0.25 of styleLabels/materials Jaccard. Either drop the threshold to ~0.20, or recognize that the heuristic is mostly the similarity matrix (diagnostic), not the clusterer. Current behavior (LLM does all the clustering work) is acceptable; the heuristic still produces a useful pairwise matrix for inspection.
+- Consider whether `clusters[].sourceIds` should be disjoint by default and overlap should require an explicit field. Current schema permits overlap and the model used it usefully on img_08, so this may be a feature not a bug. Revisit when more boards land.
+
+**Output:** `out/m12-10img-sonnet/m12-sonnet-{observations,moodboard-analysis}.json` (gitignored).

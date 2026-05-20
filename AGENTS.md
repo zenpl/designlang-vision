@@ -39,7 +39,9 @@ git log fork-base..upstream/main         # what's new upstream since we forked
   - Adds command flags `--m1-only` (skip M2) and `--observations <file>` (M2-only on prior M1 output)
   - Source files: `src/vision/cluster.js` (Jaccard styleLabels + Jaccard materials + LAB palette distance), `src/vision/prompts/moodboard-synthesis.js`, `src/vision/schemas/moodboard-design.schema.json`. `vision-client.js` gains `synthesizeMoodboard()`. `crawl-moodboard.js` refactored into M1/M2 stage runners.
   - 47/47 unit tests pass (M1 26 + M2 21). The M2 acceptance test (6 deliberately-incompatible images → ≥2 clusters with no cross-pollution) is `tests/vision/cluster.test.js`.
-  - **Live M2 baseline** on the 3-style fixture (M2-only run on prior sonnet observations): 3 clusters with specific names; every `dnaSummary` starts with "The only cluster using..."; 11 consensus claims, all carry `supportSourceIds`; one claim correctly limits its support to [img_01, img_03] when img_02 doesn't fit. Tokens draft includes concrete hex + semantic names ready for M3.
+  - **Live M2 baselines** on `tests/assets/` (gitignored):
+    - 3-style fixture (M2-only on prior sonnet observations): 3 clusters with specific names; every `dnaSummary` opens with "The only cluster using..."; 11 consensus claims, all carry `supportSourceIds`; one claim correctly limited to [img_01, img_03] when img_02 doesn't fit.
+    - **10-image moodboard (full pipeline, sonnet)**: heuristic proposed 10 singletons (real-moodboard styleLabels overlap <0.25), **LLM merged to 5 named clusters**. img_08 honestly placed in 2 clusters (Neumorphic + Editorial Commerce — visually contains both). 14 consensus claims with support counts ranging 6/10 to 10/10 — only 1 universal, rest correctly partial-coverage. Cost ~$0.30 (M1 + M2 together). See `docs/vision/m1-acceptance.md` for full table.
 - ⏳ M3 (extractors + emitters: visual-language.md, design-tokens.json, tailwind.config.js, recipes.css, prompts/implementation.md) — not started
 
 ## Don't do without checking with the user
