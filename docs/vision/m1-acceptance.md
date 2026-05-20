@@ -130,3 +130,33 @@ After running, jot what you saw in this doc under a new `## Run log` section (da
 - 0 cache reads observed on the 3-image run because each image is a fresh request and the prompt prefix is byte-stable but apparently below the 4096-token min on haiku-4-5 (haiku threshold is higher than sonnet's 2048). Sonnet/Opus runs should show caching kick in on image 2+.
 
 **Full output:** `out/m1-haiku/m1-haiku-observations.json` (gitignored).
+
+### 2026-05-19 — same images, `claude-sonnet-4-6` — PASS (and noticeably better)
+
+**Setup:** Same 3 images, switched `.env.local` to a standard `sk-ant-api03-*` billing key (the prior OAuth token didn't have inference quota beyond haiku).
+
+**Result:** 3/3 ok. **Sonnet is materially richer than haiku on this task** — adopt it as the default going forward.
+
+**Where sonnet beats haiku:**
+
+| Dimension | haiku-4-5 | sonnet-4-6 |
+|---|---|---|
+| `implementationHints` per image | ~0 (left empty on most images) | **5–6 concrete CSS-level hints** (e.g. "overflow: visible on card parent", "mix-blend-mode: multiply for botanical overlays", "Plant images sized ~130% of card width") — M3 can consume these directly |
+| img_03 boundary-breaking | "strictly contained" ❌ missed | "plant cutouts extend above the top edge of their card containers" ✓ caught |
+| img_03 hero overlay material | not identified | "frosted/translucent hero banner overlay" as a distinct material |
+| img_03 `palette.temperature` | `warm-muted` ❌ (wrong) | `cool` ✓ (the white/grey card aesthetic) |
+| img_02 food icons | "soft, slightly stylized food photography" (fuzzy) | "flat illustrated food icons, not photography" (definite classification) |
+| confidence calibration | 0.92 / 0.92 / 0.92 (flat → over-confident) | 0.88 / 0.92 / 0.93 (img_01 the most complex scored lowest — sensible) |
+| anti-pattern sharpness | "flat green soft-UI with no botanical elements" | "Flat green soft-UI with no 3D clay objects and no botanical overflow — **same palette but completely loses the diorama depth and tactility**" (with the differentiating qualifier) |
+| prompt cache hits | 0 read / 0 write (below haiku's ~4096 cache minimum) | **6672 read / 3336 write** — second and third images served from cache at ~10× discount |
+| latency (3 images, sequential) | ~30 s total | ~125 s total |
+| approximate cost (3 images) | ~$0.005 | ~$0.10 |
+
+**Verdict:** the `claude-sonnet-4-6` baseline confirms the architecture-doc default. M1 prompt design works as intended, **and** sonnet's extra capacity for `implementationHints` is what bridges into M3's `recipes.css` and `tailwind.config.js` emitters cleanly. Without that bridge, M3 would degenerate into generic boilerplate.
+
+**Caveats / nits:**
+- The `_meta.usage` block in the JSON has the full per-image `input_tokens`, `output_tokens`, `cache_*_input_tokens` — useful baseline for token budgeting in M2/M3.
+- Opus 4.7 not tested. Sonnet is sufficient for M1+, and Opus is mostly worth it for hard discrimination cases (e.g. if M2 clusters produce a confused thesis); revisit then.
+- One pure pattern observation: sonnet correctly inferred that img_02's "flat olive-green nav bar" + matte parchment surface is a **deliberately flat** aesthetic — not flat-as-failure. That nuance matters for the M3 emitter not to over-add shadows.
+
+**Output:** `out/m1-sonnet/m1-sonnet-observations.json` (gitignored).

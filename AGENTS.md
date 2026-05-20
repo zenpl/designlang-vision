@@ -26,11 +26,13 @@ git log fork-base..upstream/main         # what's new upstream since we forked
 - ✅ Smoke test: `node bin/design-extract.js --help` works
 - ✅ **Vision architecture ratified — see [`docs/vision/architecture.md`](docs/vision/architecture.md)**
   - Decisions locked: command = `moodboard`; provider = Anthropic Claude; MVP cut into M1/M2/M3
-- ✅ **M1 code complete — per-image `ImageObservation` extraction**
-  - CLI: `node bin/design-extract.js moodboard <path-or-glob> -o <dir> -n <name>` (default model `claude-sonnet-4-6`; `--model claude-opus-4-7` to escalate)
+- ✅ **M1 verified — per-image `ImageObservation` extraction works on real images**
+  - CLI: `node bin/design-extract.js moodboard <path-or-glob> -o <dir> -n <name>` (default model `claude-sonnet-4-6`; `--model claude-opus-4-7` to escalate; `--model claude-haiku-4-5` for cost)
   - Source files: `src/vision/image-loader.js`, `vision-client.js`, `prompts/image-analysis.js`, `schemas/image-observation.schema.json`, `schemas/validate.js`, `crawl-moodboard.js`
-  - 23/23 unit tests pass (schema validation / image loader / vision client with mocked SDK)
-  - Real-API acceptance test recipe: [`docs/vision/m1-acceptance.md`](docs/vision/m1-acceptance.md) — needs `ANTHROPIC_API_KEY` + 3 fixture images
+  - 26/26 unit tests pass (schema validation / image loader / vision client with mocked SDK / auth-token routing)
+  - **Live acceptance** on 3 distinct-style moodboard images (`tests/assets/{1,2,3}.jpeg`, gitignored):
+    - haiku-4-5 baseline: 3/3 ok, 3 styles clearly distinguishable, ~$0.005 — see `docs/vision/m1-acceptance.md` Run log
+    - sonnet-4-6 baseline: 3/3 ok, materially richer `implementationHints` + caught nuances haiku missed, prompt cache hits ~10× discount on 2nd–3rd images, ~$0.10 — **adopt as default**
 - ⏳ M2 (cluster + synthesis) — not started
 
 ## Don't do without checking with the user
