@@ -1,3 +1,34 @@
+<!--
+  ┌─────────────────────────────────────────────────────────────────────┐
+  │  designlang-vision — fork of Manavarya09/design-extract (designlang) │
+  │                                                                       │
+  │  Goal: replace the Playwright DOM/CSS extraction path with a          │
+  │        screenshot → vision-LLM → DTCG-tokens path.                    │
+  │                                                                       │
+  │  Fork base : upstream v12.14.0 @ commit 2c50abc (tag: fork-base)      │
+  │  Upstream  : https://github.com/Manavarya09/design-extract            │
+  │  Author of upstream: Manav Arya Singh (@masyv) — full credit          │
+  │  License  : MIT (inherited; see LICENSE)                              │
+  │                                                                       │
+  │  This README below this banner is the upstream's verbatim README,     │
+  │  preserved as reference. Vision-specific docs will live in            │
+  │  docs/vision/ once the new path lands.                                │
+  └─────────────────────────────────────────────────────────────────────┘
+-->
+
+# designlang-vision
+
+> Fork of [`Manavarya09/design-extract`](https://github.com/Manavarya09/design-extract) (npm: [`designlang`](https://www.npmjs.com/package/designlang)) that swaps the Playwright DOM/CSS extraction path for **screenshot → vision-LLM → DTCG tokens**.
+>
+> **Status**: scaffold only — upstream code unchanged below this banner. Vision pipeline TBD.
+>
+> **Fork base**: upstream v12.14.0 @ `2c50abc` (also tagged `fork-base` locally).
+>
+> Diff against fork base: `git diff fork-base..HEAD`.
+> Pull upstream updates: `git fetch upstream && git merge upstream/main`.
+
+---
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/Manavarya09/design-extract/main/website/public/logo-specimen.svg" alt="designlang — reads a website the way a developer reads a stylesheet" width="900">
 </p>

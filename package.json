@@ -1,10 +1,10 @@
 {
-  "name": "designlang",
-  "version": "12.14.0",
-  "description": "Extract the complete design language from any website and ship it — clone to a working Next.js starter, guard tokens with a CI drift bot, or browse everything in a local studio. Outputs W3C DTCG tokens, motion tokens, typed anatomy stubs, Tailwind config, and ready-to-paste v0 / Lovable / Cursor / Claude-Artifacts prompts.",
+  "name": "designlang-vision",
+  "version": "0.1.0-fork.12.14.0",
+  "description": "Vision-based design-system extraction — a fork of Manavarya09/design-extract (designlang) that swaps the Playwright DOM/CSS path for a screenshot → vision-LLM → DTCG-tokens path. Fork-base: upstream v12.14.0 @ 2c50abc.",
   "type": "module",
   "bin": {
-    "designlang": "./bin/design-extract.js"
+    "designlang-vision": "./bin/design-extract.js"
   },
   "main": "src/index.js",
   "exports": {
