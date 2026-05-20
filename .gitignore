@@ -1,10 +1,17 @@
 node_modules/
 design-extract-output/
 test-output/
+out/
+samples/
 *.log
 .DS_Store
 .vercel/
 .vercel
+
+# Secrets — never push
+.env
+.env.*
+!.env.example
 
 # Internal planning, never push
 STRATEGY.md
