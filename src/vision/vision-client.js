@@ -56,11 +56,9 @@ export class VisionClient {
 
   /** Build the cacheable system + tools prefix. Byte-stable across calls within a run. */
   _stableRequest() {
-    return {
+    const req = {
       model: this.model,
       max_tokens: this.maxTokens,
-      // Light temperature: we want stable structured output, not creative spread.
-      temperature: 0.2,
       tools: [RECORD_OBSERVATION_TOOL],
       // Force the model to call our tool — never free text.
       tool_choice: { type: 'tool', name: RECORD_OBSERVATION_TOOL.name },
@@ -73,6 +71,15 @@ export class VisionClient {
         },
       ],
     };
+
+    // Sampling parameters are removed on Opus 4.7+ and return 400. Sonnet 4.6 / Haiku 4.5
+    // still accept them. We use a low non-zero temperature for stable structured output;
+    // omit it on opus-4-7. See claude-api skill / model-migration.md → Migrating to Opus 4.7.
+    if (!/^claude-opus-4-7/.test(this.model)) {
+      req.temperature = 0.2;
+    }
+
+    return req;
   }
 
   /**

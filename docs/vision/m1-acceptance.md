@@ -160,3 +160,36 @@ After running, jot what you saw in this doc under a new `## Run log` section (da
 - One pure pattern observation: sonnet correctly inferred that img_02's "flat olive-green nav bar" + matte parchment surface is a **deliberately flat** aesthetic — not flat-as-failure. That nuance matters for the M3 emitter not to over-add shadows.
 
 **Output:** `out/m1-sonnet/m1-sonnet-observations.json` (gitignored).
+
+### 2026-05-19 — same images, `claude-opus-4-7` — PASS (and meaningfully deeper)
+
+**Setup:** Same 3 images, same `sk-ant-api03-*` key. First attempt 400'd on every image because vision-client.js set `temperature: 0.2` and Opus 4.7 removed sampling parameters entirely (see `shared/model-migration.md` → Migrating to Opus 4.7). Fixed: vision-client now omits `temperature` when model starts with `claude-opus-4-7`. Re-run succeeded.
+
+**Result:** 3/3 ok. img_01 took 2 attempts (the repair flow triggered for real — first attempt's tool input had a schema issue; the repair prompt succeeded on attempt 2). **This is the first real-world validation of the repair retry pipeline.**
+
+**Where opus beats sonnet:**
+
+| Dimension | sonnet-4-6 | opus-4-7 |
+|---|---|---|
+| `implementationHints` granularity | Method-level ("use `mix-blend-mode: multiply` for botanical overlays") | **Value-level** ("two shadow layers per card: tight contact `0 2px 4px rgba` + broad ambient `0 30px 60px rgba`"; "Pastel UI surfaces want 1–2% inner top highlight + 3–4% bottom inner shade"). These are CSS recipe lines that M3 can ship verbatim. |
+| Material `confidence` | One overall number | **Per-material confidence** — img_01 returns airplane=0.9, plastic-card=0.85, frosted-panel=0.6. The 0.6 on the smaller frosted panel is honest, not noise. |
+| Cross-image awareness | Within-image only | **img_03 anti-pattern reads literally: "Letting plants break the card boundary (diorama style) — here everything is strictly contained; boundary-breaking belongs to a different moodboard."** Opus is already doing M2-stage cluster reasoning inside per-image observations. |
+| `realismLevel` precision | Binary-ish (`semi-realistic-3d` / `screenshot` / `photographic`) | Adds `mixed` for img_02 (screenshot + ink-watercolor illustrations) and img_03 (cards + lifestyle photography), which matches what the images actually are. |
+| Confidence calibration | 0.88 / 0.92 / 0.93 | 0.82 / 0.82 / 0.86 — more conservative because opus sees more nuance. Sensible. |
+| Repair retry validation | Never triggered | img_01 attempts=2. Repair prompt with prior-failure context succeeded. **Production-tested.** |
+| Prompt cache write tokens (first image) | 3336 | **1120** — opus encodes the same prompt prefix into fewer tokens |
+| Prompt cache read tokens (across 3 images) | 6672 | **13935** — opus caches more aggressively, second and third images and the img_01 repair attempt all served from cache |
+| Latency (3 images, sequential) | ~125 s | ~184 s |
+| Approximate cost (3 images) | ~$0.10 | **~$0.40–0.50** |
+
+**Verdict:**
+- **Default model for M1 stays `claude-sonnet-4-6`** — cost/quality balance is right, observations are usable for clustering.
+- **For M3 emission (recipes.css, tailwind.config.js, prompts/implementation.md), `claude-opus-4-7` is worth the ~4–5× cost.** Opus's per-image value-level hints (specific shadow rgba values, percent inner highlights, exact pill-button vs solid behavior) are what makes the difference between "shipped CSS recipes" and "generic boilerplate". M3 should likely default to opus.
+- **For M2 (cluster + synthesis), sonnet is sufficient.** The synthesis call summarizes existing observations rather than reading images afresh; opus's image-level depth is wasted there.
+- **The `mixed` realismLevel value** is a useful schema extension that came from opus's vocabulary — the schema already allows it (`enum`), so no change needed.
+
+**Caveats:**
+- `palette.saturation` returned `null` for img_01 on opus (sonnet filled it). Tiny gap, not load-bearing.
+- The first 400-temperature failure is a reminder that the `claude-api` skill's "sampling parameters removed on Opus 4.7" is a real and silent breaking change — keep an eye on future opus releases.
+
+**Output:** `out/m1-opus/m1-opus-observations.json` (gitignored).
