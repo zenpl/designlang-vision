@@ -2040,4 +2040,79 @@ program
     await run(opts);
   });
 
+// ── Vision fork — M1: moodboard image observation ────────────────────────────
+// See docs/vision/architecture.md. M1 only emits <name>-observations.json — no
+// clustering, no emitters. Other M-stages will register sibling subcommands.
+
+program
+  .command('moodboard <pathOrGlob>')
+  .description('Vision: analyze a folder/glob of moodboard images into per-image observations (M1)')
+  .option('-o, --out <dir>', 'output directory', './design-extract-output')
+  .option('-n, --name <name>', 'output file prefix', 'moodboard')
+  .option('--model <id>', 'Anthropic model id', 'claude-sonnet-4-6')
+  .option('--max-images <n>', 'max images per run (safety cap, M1 prefers ≤30)', '30')
+  .option('--api-key <key>', 'Anthropic API key (overrides ANTHROPIC_API_KEY env)')
+  .action(async (pathOrGlob, opts) => {
+    const { crawlMoodboard } = await import('../src/vision/crawl-moodboard.js');
+
+    console.log('');
+    console.log(chalk.bold('  designlang-vision moodboard (M1)'));
+    console.log(chalk.gray(`  input: ${pathOrGlob}`));
+    console.log(chalk.gray(`  model: ${opts.model}`));
+    console.log('');
+
+    const spinner = ora('Loading images...').start();
+    try {
+      const result = await crawlMoodboard({
+        input: pathOrGlob,
+        outDir: opts.out,
+        name: opts.name,
+        model: opts.model,
+        apiKey: opts.apiKey,
+        maxImages: parseInt(opts.maxImages, 10) || 30,
+        onProgress: (evt) => {
+          switch (evt.stage) {
+            case 'load_done':
+              spinner.text = `Loaded ${evt.count} image(s). Analyzing...`;
+              break;
+            case 'analyze_start':
+              spinner.text = `[${evt.index + 1}/${evt.total}] ${evt.id} (${evt.filename})`;
+              break;
+            case 'analyze_done': {
+              const tag = evt.attempts > 1 ? chalk.yellow(` (repaired ×${evt.attempts})`) : '';
+              spinner.info(`[${evt.index + 1}/${evt.total}] ${evt.id} ✓${tag}`);
+              spinner.start();
+              break;
+            }
+            case 'analyze_error':
+              spinner.warn(`[${evt.index + 1}/${evt.total}] ${evt.id} ✗ ${chalk.red(evt.error)}`);
+              spinner.start();
+              break;
+            case 'write_done':
+              // Final summary printed by spinner.succeed below
+              break;
+          }
+        },
+      });
+
+      const { outPath, payload } = result;
+      const { successCount, errorCount, cacheStats } = payload._run;
+      spinner.succeed(`Done — ${successCount} ok, ${errorCount} failed.`);
+      console.log('');
+      console.log(`  ${chalk.green('✓')} ${chalk.cyan(outPath)}`);
+      console.log(chalk.gray(`  cache: ${cacheStats.read} read tokens, ${cacheStats.creation} write tokens`));
+      if (errorCount > 0) {
+        console.log('');
+        for (const e of payload.errors) {
+          console.log(chalk.red(`  ✗ ${e.id} (${e.filename}): ${e.message}`));
+        }
+      }
+      console.log('');
+    } catch (err) {
+      spinner.fail('moodboard failed');
+      console.error(chalk.red(`\n  ${err.message}\n`));
+      process.exit(1);
+    }
+  });
+
 program.parse();

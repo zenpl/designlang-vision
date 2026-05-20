@@ -1,0 +1,139 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "image-observation.schema.json",
+  "title": "ImageObservation",
+  "description": "Structured visual analysis of a single moodboard image. Schema mirrors docs/vision/architecture.md §4.1. All claim fields are nullable to tolerate model uncertainty — missing fields are normal, but generic vibe summaries (e.g. 'green soft UI') are explicitly rejected via the prompt.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["source", "globalStyle"],
+  "properties": {
+    "source": {
+      "type": "object",
+      "description": "Identifying information for the analyzed image. Filled in by the loader, not the model — but the model echoes source.id back so downstream tools can correlate.",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": {
+        "id":   { "type": "string", "description": "Stable id assigned at load time, e.g. 'img_01'." },
+        "path": { "type": ["string", "null"] },
+        "filename": { "type": ["string", "null"] },
+        "width":  { "type": ["integer", "null"], "minimum": 1 },
+        "height": { "type": ["integer", "null"], "minimum": 1 },
+        "sha256": { "type": ["string", "null"] }
+      }
+    },
+    "globalStyle": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "styleLabels":   { "type": "array", "items": { "type": "string" }, "description": "Specific labels like 'botanical', '3d-diorama', 'frosted-glass'. NOT vague mood labels." },
+        "mood":          { "type": "array", "items": { "type": "string" } },
+        "visualDensity": { "type": ["string", "null"], "enum": [null, "low", "medium", "high"] },
+        "realismLevel":  { "type": ["string", "null"], "enum": [null, "flat-illustration", "semi-realistic-3d", "photographic", "screenshot", "mixed"] }
+      },
+      "required": ["styleLabels"]
+    },
+    "palette": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "dominant":    { "type": "array", "items": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" }, "description": "Up to 5 dominant hex colors." },
+        "accent":      { "type": "array", "items": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" } },
+        "neutrals":    { "type": "array", "items": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" } },
+        "temperature": { "type": ["string", "null"], "enum": [null, "cool", "neutral", "warm", "warm-muted"] },
+        "saturation":  { "type": ["string", "null"], "enum": [null, "low", "low-to-medium", "medium", "high"] }
+      }
+    },
+    "materials": {
+      "type": "array",
+      "description": "Identified surface materials with evidence. THIS is where the 'real / tactile / raised' signal lives — keep this section rich and specific.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["label"],
+        "properties": {
+          "label":      { "type": "string", "description": "Specific material name, e.g. 'frosted glass panel', 'matte clay 3d object'. Not generic adjectives." },
+          "evidence":   { "type": "string", "description": "What in the image supports this label." },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+        }
+      }
+    },
+    "lighting": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "keyLightDirection": { "type": ["string", "null"], "description": "e.g. 'upper-left/front', 'top', 'ambient', 'none'." },
+        "shadowType":        { "type": ["string", "null"], "description": "Free-form. Multiple types allowed in one phrase, e.g. 'large soft cast + contact shadow'." },
+        "edgeHighlights":    { "type": ["string", "null"] },
+        "ambientOcclusion":  { "type": ["string", "null"] }
+      }
+    },
+    "depth": {
+      "type": ["object", "null"],
+      "description": "Layering, overlap, boundary-breaking. Critical for 'diorama / layered scene' vs 'flat UI' distinction.",
+      "additionalProperties": false,
+      "properties": {
+        "layers":         { "type": "array", "items": { "type": "string" }, "description": "e.g. ['atmospheric bg', 'main panel', 'foreground botanical']." },
+        "overlapPattern": { "type": ["string", "null"], "description": "e.g. 'plants break the card boundary', 'strictly contained'." },
+        "depthCues":      { "type": "array", "items": { "type": "string", "enum": ["blur", "scale", "occlusion", "cast shadow", "atmospheric perspective", "stacking order", "size hierarchy", "color temperature shift"] } }
+      }
+    },
+    "composition": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "layoutType":   { "type": ["string", "null"], "description": "e.g. 'central object panel with organic frame'." },
+        "safeArea":     { "type": ["string", "null"] },
+        "edgeBehavior": { "type": ["string", "null"], "description": "e.g. 'foreground crosses container boundaries' vs 'strictly contained'." }
+      }
+    },
+    "components": {
+      "type": "array",
+      "description": "Visual UI/component prototypes (not literal DOM elements — 'hero-card', 'glass-panel', 'floating-chip').",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "role":               { "type": ["string", "null"] },
+          "shape":              { "type": ["string", "null"] },
+          "surface":            { "type": ["string", "null"] },
+          "shadow":             { "type": ["string", "null"] },
+          "implementationHint": { "type": ["string", "null"], "description": "How to actually build it in CSS. Most useful when specific." }
+        }
+      }
+    },
+    "typography": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "headingStyle":  { "type": ["string", "null"], "description": "Style inference, not font identification. e.g. 'geometric sans, soft, low-contrast'." },
+        "bodyStyle":     { "type": ["string", "null"] },
+        "letterSpacing": { "type": ["string", "null"] }
+      }
+    },
+    "imageryStyle": {
+      "type": ["object", "null"],
+      "description": "What KIND of imagery this is — photography vs 3D vs clay vs cutout vs screenshot. Distinct from material (which is about surfaces inside the image).",
+      "additionalProperties": false,
+      "properties": {
+        "primary":    { "type": ["string", "null"], "description": "e.g. 'photographic + 3d-clay overlay', 'flat illustration', 'UI screenshot'." },
+        "techniques": { "type": "array", "items": { "type": "string" }, "description": "e.g. ['cutout', 'gradient mesh', 'isometric']." }
+      }
+    },
+    "implementationHints": {
+      "type": "array",
+      "description": "Hard-won, specific CSS/build rules. NOT generic ('use rounded corners') — specific ('use ::before for warm glow + absolute foreground layer for plants breaking boundary').",
+      "items": { "type": "string" }
+    },
+    "antiPatterns": {
+      "type": "array",
+      "description": "What this kind of imagery is often miscopied as. SCOPE: this image's own anti-patterns, NOT what other moodboard images forbid (that's synthesis-stage).",
+      "items": { "type": "string" }
+    },
+    "confidence": {
+      "type": ["number", "null"],
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Overall confidence in this observation."
+    }
+  }
+}
