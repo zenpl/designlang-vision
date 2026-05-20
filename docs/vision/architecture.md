@@ -214,30 +214,26 @@ Notes:
 - Schema-forced. Same retry policy.
 - **Critical constraint in prompt**: "Do not produce consensus claims that lack `supportSourceIds`. If <2 images support a claim, mark it as cluster-local, not consensus."
 
-### 5.4 Extraction (M3)
+### 5.4 Emission (M3) — revised after seeing M2 output
 
-Four vision-specific extractors operating on `MoodboardDesign`:
+**Architecture change vs the original plan** (recorded so future agents understand why this section is different from earlier mentions):
 
-1. **`vision-material-language`** — what the surfaces *are* (frosted glass, matte clay, warm paper, …) and the *rules* governing them ("raised objects require contact shadows"). Replaces the upstream `material-language.js` heuristic for vision input.
+The original plan had **two M3 sub-stages**: (a) four vision-specific *extractors* (`vision-material-language`, `vision-depth-language`, `vision-composition-language`, `vision-implementation-recipes`) that distill `MoodboardDesign` into more-structured intermediate shapes; (b) emitters that consume those intermediates. After running M2 on real moodboards and inspecting the sonnet output, the extractor layer became unnecessary scaffolding — the M2 synthesis already produces cluster-mapped materials, consensus claims with `supportSourceIds`, draft tokens with concrete hex values, and `implementationRules` containing concrete rgba shadow values. The extractor layer would have done what the synthesis pass already does, only worse (further away from the original images).
 
-2. **`vision-depth-language`** — layering, shadow model (cast vs contact vs AO), implementation hints (relative scene, absolute foreground, `overflow-visible` on hero containers).
+The original plan also had `design-tokens.json` and `tailwind.config.js` "reusing the upstream emitter via adapter". The upstream emitter is shaped for DOM-extracted `colors.all` / `typography.families` / `borders.radii` / `shadows.values` — our cluster-aware shape doesn't fit cleanly, and writing the adapter is roughly equivalent to writing a fresh emitter. We chose fresh, with output that's DTCG-compatible at the byte level so downstream tools that read DTCG see something equivalent to what the upstream produces.
 
-3. **`vision-composition-language`** — central-object-framed-by-organics, panel-embedded-in-scene, etc. Plus a `layoutTranslation` map ("scene-first hero, not text-first").
+**The revised M3 has only emitters, no extractors.** Five emitters, mixed template/LLM:
 
-4. **`vision-implementation-recipes`** — final translation to actual CSS recipes. Depends on all three above being stable; therefore M3-only.
+| File | Source | Mode | Notes |
+|---|---|---|---|
+| `<name>-design-tokens.json` | `MoodboardDesign` | **Template** | DTCG-style nested groups: `{color, borderRadius, shadow, typography, ...}`. Walks `design.tokens` + `design.consensus.palette/components`. Deterministic, no API call. |
+| `<name>-tailwind.config.js` | `MoodboardDesign` | **Template** | `theme.extend.{colors, borderRadius, boxShadow, fontFamily}`. Same source as the json. Output is `module.exports = {...}` valid Node CommonJS. |
+| `<name>-recipes.css` | `MoodboardDesign` | **Template** | CSS file with `@layer recipes-consensus { ... }` + per-cluster `@layer recipes-cluster-<slug> { ... }`. Walks `design.consensus.implementationRules` + `design.recipes` + `clusters[].localClaims`. Cluster-scoped intentionally — so a 5-cluster moodboard doesn't get its recipes flattened. |
+| `<name>-visual-language.md` | `MoodboardDesign` | **LLM** | Narrative markdown, section order: Style Thesis → Cluster Map → Visual DNA → Material → Depth → Lighting → Composition → Components → Tokens → Recipes → Anti-patterns. Force-tool-use is not used — the output is markdown, asked from the model directly with the design as JSON context. |
+| `<name>-prompts/implementation.md` | `MoodboardDesign` | **LLM** | One-page, Cursor/Claude-Code-pasteable. Calls out cluster-bound rules (`overflow:visible` for the Diorama cluster, `mix-blend-mode: multiply` for the Parchment cluster, etc.) so a downstream agent knows which subset of rules to apply. |
+| `<name>-moodboard-analysis.json` | (already emitted by M2) | — | The raw `MoodboardDesign`. M3 reads this; M3 doesn't overwrite it. |
 
-### 5.5 Emission (M3)
-
-| File | Status | Notes |
-|---|---|---|
-| `<name>-visual-language.md` | **NEW** | New section order: Style Thesis → Cluster Map → Visual DNA → Material → Depth → Lighting → Composition → Component Translation → Tokens → Recipes → Prompts → Anti-patterns. **Not** the upstream `design-language.md` template. |
-| `<name>-design-tokens.json` | **adapter** | Reuse upstream `tokens-json` emitter via an adapter that fills its expected DOM-derived fields (`colors.all`, `typography.families/scale`, `borders.radii`, `shadows.values`, etc.) from `MoodboardDesign.tokens`. |
-| `<name>-tailwind.config.js` | **adapter** | Reuse upstream `tailwind.js` emitter via same adapter. |
-| `<name>-recipes.css` | **NEW** | CSS for material/depth/lighting that doesn't fit a token table (filters, layered pseudo-elements, mask gradients, etc.). |
-| `<name>-prompts/implementation.md` | **NEW** | One-page Cursor/Claude-Code-pasteable spec for "build me a screen in this language". |
-| `<name>-moodboard-analysis.json` | **NEW** | Raw `MoodboardDesign` dump. Always emitted (debugging + future re-runs). |
-
-`shadcn-theme`, `figma-variables`, `clone`, `apply`, `mcp` — **not in MVP**. Revisit after MVP proves M3 output quality.
+`shadcn-theme`, `figma-variables`, `clone`, `apply`, `mcp` — **not in MVP**. Revisit after M3 output quality is validated.
 
 ---
 
@@ -245,16 +241,14 @@ Four vision-specific extractors operating on `MoodboardDesign`:
 
 ### Reused as-is
 - `bin/design-extract.js` infrastructure (commander setup, dispatch).
-- `tokens-json` emitter (via adapter).
-- `tailwind.js` emitter (via adapter).
-- `prompt-pack` skeleton (we plug different content into the same harness).
 
 ### New
 - `src/vision/` (entire subtree).
-- `src/extractors/vision-*.js` (4 files, M2/M3).
-- `src/emitters/visual-language-md.js`.
-- `src/emitters/recipes-css.js`.
-- `src/emitters/vision-implementation-prompts.js`.
+- `src/vision/emitters/` — 5 files (3 template, 2 LLM) + an index `emitFromDesign(design, opts)`.
+
+### Dropped from original plan (after M2 evidence)
+- The 4 vision extractors (`vision-material-language`, etc.) — M2 synthesis output is rich enough that an extra distillation layer was redundant.
+- Upstream `tokens-json` / `tailwind` emitter adapters — our shape doesn't map cleanly; fresh emitters with DTCG-compatible output are simpler.
 
 ### Untouched (kept for future / reference / DOM-fallback)
 - `src/crawler.js`, `src/extractors/material-language.js`, `src/extractors/imagery-style.js`, etc.
@@ -294,16 +288,21 @@ Not in M2: extractors, emitters beyond JSON.
 
 ### M3 — emission
 
-**Goal**: produce the 5 designer-facing files of real usefulness.
+**Goal**: produce the 5 designer-facing files of real usefulness, directly from `MoodboardDesign` (no extractor scaffolding — see §5.4 for the rationale).
 
-Deliverables:
-- 4 vision extractors (`vision-material-language`, `vision-depth-language`, `vision-composition-language`, `vision-implementation-recipes`).
-- `visual-language.md` emitter (new section order).
-- `design-tokens.json` adapter.
-- `tailwind.config.js` adapter.
-- `recipes.css` emitter.
-- `prompts/implementation.md` emitter.
-- Test: golden-output comparison against a frozen moodboard.
+Deliverables (5 emitters, all under `src/vision/emitters/`):
+- **Template** (no LLM call):
+  - `tokens-json.js`         → `<name>-design-tokens.json`
+  - `tailwind-config.js`     → `<name>-tailwind.config.js`
+  - `recipes-css.js`         → `<name>-recipes.css` (cluster-scoped `@layer` blocks)
+- **LLM** (one call each):
+  - `visual-language-md.js`         → `<name>-visual-language.md`
+  - `implementation-prompt-md.js`   → `<name>-prompts/implementation.md`
+- An `index.js` exporting `emitFromDesign(design, { outDir, name, model, ... })` that runs all 5 in parallel where safe.
+- `crawl-moodboard.js` runs `runM3` after `runM2` by default; `--m2-only` skips M3; `--design <file>` runs M3-only on a prior MoodboardDesign.
+- Tests: deterministic golden-output for the 3 template emitters; mocked-SDK tests for the 2 LLM emitters; live run on the 10-image fixture.
+
+Cost on sonnet for the 10-image fixture: ~$0.10 (2 LLM calls). Total M1+M2+M3: ~$0.40.
 
 ---
 

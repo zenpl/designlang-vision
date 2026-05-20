@@ -2051,8 +2051,10 @@ program
   .option('-n, --name <name>', 'output file prefix', 'moodboard')
   .option('--model <id>', 'Anthropic model id', 'claude-sonnet-4-6')
   .option('--max-images <n>', 'max images per run (safety cap, M1 prefers ≤30)', '30')
-  .option('--m1-only', 'skip M2 (cluster + synthesis); emit observations.json only')
-  .option('--observations <file>', 'skip M1; load prior observations.json and only run M2')
+  .option('--m1-only', 'skip M2+M3; emit observations.json only')
+  .option('--m2-only', 'skip M3; emit through moodboard-analysis.json')
+  .option('--observations <file>', 'skip M1; load prior observations.json and run M2+M3')
+  .option('--design <file>', 'skip M1+M2; run M3 only from a prior moodboard-analysis.json')
   .option('--api-key <key>', 'Anthropic API key (overrides ANTHROPIC_API_KEY env; standard sk-ant-api* key)')
   .option('--auth-token <token>', 'Anthropic OAuth/agent token (overrides ANTHROPIC_AUTH_TOKEN env; sk-ant-oat* token)')
   .action(async function (pathOrGlob, _opts) {
@@ -2063,12 +2065,16 @@ program
     // opts on default. optsWithGlobals() merges parent + child so the user's CLI input wins.
     const opts = this.optsWithGlobals();
 
-    if (!pathOrGlob && !opts.observations) {
-      console.error(chalk.red('\n  Must pass <pathOrGlob> argument OR --observations <file>.\n'));
+    if (!pathOrGlob && !opts.observations && !opts.design) {
+      console.error(chalk.red('\n  Must pass <pathOrGlob> argument OR --observations <file> OR --design <file>.\n'));
       process.exit(1);
     }
 
-    const stagesLabel = opts.observations ? 'M2-only' : (opts.m1Only ? 'M1-only' : 'M1 + M2');
+    const stagesLabel = opts.design ? 'M3-only'
+      : opts.observations ? (opts.m2Only ? 'M2-only' : 'M2 + M3')
+      : opts.m1Only ? 'M1-only'
+      : opts.m2Only ? 'M1 + M2'
+      : 'M1 + M2 + M3';
 
     console.log('');
     console.log(chalk.bold(`  designlang-vision moodboard (${stagesLabel})`));
@@ -2090,7 +2096,9 @@ program
         authToken: opts.authToken,
         maxImages: parseInt(opts.maxImages, 10) || 30,
         m1Only: !!opts.m1Only,
+        m2Only: !!opts.m2Only,
         observationsFile: opts.observations,
+        designFile: opts.design,
         onProgress: (evt) => {
           switch (evt.stage) {
             case 'load_done':
@@ -2125,20 +2133,54 @@ program
               spinner.info(chalk.gray(`M2 skipped — ${evt.reason}`));
               spinner.start();
               break;
+            case 'load_design':
+              spinner.text = `Loading design from ${evt.file}...`;
+              break;
+            case 'load_design_done':
+              spinner.text = `Loaded design (${evt.clusters} clusters). Emitting...`;
+              break;
+            case 'm3_template_done':
+              spinner.info(`M3 templates ✓ — ${evt.files.join(', ')}`);
+              spinner.start();
+              break;
+            case 'm3_llm_start':
+              spinner.text = 'M3 LLM emitters in flight (visual-language.md + implementation prompt)...';
+              break;
+            case 'm3_llm_done':
+              spinner.info(`M3 LLM ✓ — ${evt.files.join(', ')}`);
+              spinner.start();
+              break;
+            case 'm3_skipped':
+              spinner.info(chalk.gray(`M3 skipped — ${evt.reason}`));
+              spinner.start();
+              break;
           }
         },
       });
 
-      const { m1, m2, m1OutPath, m2OutPath } = result;
+      const { m1, m2, m3, m1OutPath, m2OutPath } = result;
       const successCount = m1?._run?.successCount ?? (m1?.observations?.length ?? 0);
       const errorCount   = m1?._run?.errorCount ?? 0;
 
-      spinner.succeed(m2
-        ? `Done — M1: ${successCount} ok, ${errorCount} failed. M2: ${m2.design.clusters.length} cluster(s).`
-        : `Done — M1: ${successCount} ok, ${errorCount} failed.`);
+      const m3Files = m3?.outputs ? Object.keys(m3.outputs).length : 0;
+      const m2ClusterCount = m2?.design?.clusters?.length ?? 0;
+      let doneLine;
+      if (m3) {
+        doneLine = `Done — M1: ${successCount} ok, ${errorCount} failed. M2: ${m2ClusterCount} cluster(s). M3: ${m3Files} files.`;
+      } else if (m2) {
+        doneLine = `Done — M1: ${successCount} ok, ${errorCount} failed. M2: ${m2ClusterCount} cluster(s).`;
+      } else {
+        doneLine = `Done — M1: ${successCount} ok, ${errorCount} failed.`;
+      }
+      spinner.succeed(doneLine);
       console.log('');
       if (m1?._run) console.log(`  ${chalk.green('✓')} ${chalk.cyan(m1OutPath)}`);
       if (m2OutPath) console.log(`  ${chalk.green('✓')} ${chalk.cyan(m2OutPath)}`);
+      if (m3?.outputs) {
+        for (const [label, path] of Object.entries(m3.outputs)) {
+          console.log(`  ${chalk.green('✓')} ${chalk.cyan(path)}  ${chalk.gray(`(${label})`)}`);
+        }
+      }
 
       if (m1?._run?.cacheStats) {
         const { read, creation } = m1._run.cacheStats;
@@ -2147,6 +2189,9 @@ program
       if (m2?._run?.cacheUsage) {
         const { cache_read_input_tokens: r, cache_creation_input_tokens: w } = m2._run.cacheUsage;
         console.log(chalk.gray(`  M2 cache: ${r} read tokens, ${w} write tokens`));
+      }
+      if (m3?.cacheUsage) {
+        console.log(chalk.gray(`  M3 cache: ${m3.cacheUsage.read} read tokens, ${m3.cacheUsage.creation} write tokens · ${(m3.durationMs / 1000).toFixed(1)}s`));
       }
       if (m2) {
         console.log('');

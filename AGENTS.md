@@ -42,7 +42,14 @@ git log fork-base..upstream/main         # what's new upstream since we forked
   - **Live M2 baselines** on `tests/assets/` (gitignored):
     - 3-style fixture (M2-only on prior sonnet observations): 3 clusters with specific names; every `dnaSummary` opens with "The only cluster using..."; 11 consensus claims, all carry `supportSourceIds`; one claim correctly limited to [img_01, img_03] when img_02 doesn't fit.
     - **10-image moodboard (full pipeline, sonnet)**: heuristic proposed 10 singletons (real-moodboard styleLabels overlap <0.25), **LLM merged to 5 named clusters**. img_08 honestly placed in 2 clusters (Neumorphic + Editorial Commerce — visually contains both). 14 consensus claims with support counts ranging 6/10 to 10/10 — only 1 universal, rest correctly partial-coverage. Cost ~$0.30 (M1 + M2 together). See `docs/vision/m1-acceptance.md` for full table.
-- ⏳ M3 (extractors + emitters: visual-language.md, design-tokens.json, tailwind.config.js, recipes.css, prompts/implementation.md) — not started
+- ✅ **M3 verified — 5-file design system emission**
+  - Architecture revised post-M2: dropped the 4 extractor modules (M2 output is rich enough) and the upstream-emitter adapter idea (fresh emitters are simpler and DTCG-compatible). See `docs/vision/architecture.md` §5.4 for the rationale.
+  - 5 emitters under `src/vision/emitters/`: `tokens-json.js` + `tailwind-config.js` + `recipes-css.js` (template, no LLM call) + `visual-language-md.js` + `implementation-prompt-md.js` (LLM via `VisionClient.generateMarkdown()`).
+  - CLI flags added: `--m2-only` (skip M3) and `--design <file>` (M3-only on a prior MoodboardDesign).
+  - 62/62 tests passing (47 M1+M2 + 15 M3: template-emitter goldenish + LLM-emitter mocked SDK + orchestrator wiring).
+  - **Live M3 baseline** on 10-image fixture: 5 files produced, ~$0.10, ~5 min. visual-language.md = 357 lines with 11-section order intact; implementation prompt = 164 lines (≤200 budget) with cluster contradiction callouts. Anti-patterns in both outputs explicitly name "averaging clusters into one aesthetic" as the failure mode the system rejects.
+  - Stability fix during baseline: LLM emitter Promise.all hit "Connection error" twice in a row; switched to sequential calls + `withRetryOnConnError` (one 2s-backoff retry on connection-class errors). Third attempt succeeded.
+- 🎯 **MVP complete**. Next steps live outside the M1/M2/M3 scope: live URL-as-input ingestion, Figma/PDF input, shadcn theme emitter, MCP server. Re-read `architecture.md` §9 (out-of-scope) before picking any of them up.
 
 ## Don't do without checking with the user
 

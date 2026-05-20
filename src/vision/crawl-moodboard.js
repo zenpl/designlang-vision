@@ -13,6 +13,7 @@ import { join, resolve } from 'node:path';
 import { loadImages } from './image-loader.js';
 import { VisionClient, DEFAULT_MODEL } from './vision-client.js';
 import { clusterObservations, pairwiseMatrix } from './cluster.js';
+import { emitFromDesign } from './emitters/index.js';
 
 /**
  * @typedef {Object} CrawlOptions
@@ -23,8 +24,10 @@ import { clusterObservations, pairwiseMatrix } from './cluster.js';
  * @property {string}   [apiKey]      overrides ANTHROPIC_API_KEY env (standard API key)
  * @property {string}   [authToken]   overrides ANTHROPIC_AUTH_TOKEN env (OAuth/agent token, sk-ant-oat*)
  * @property {number}   [maxImages]   safety cap; default 30 for M1
- * @property {boolean}  [m1Only]      skip M2 synthesis; just emit observations.json
- * @property {string}   [observationsFile] skip M1; load observations from this file and only run M2
+ * @property {boolean}  [m1Only]      skip M2 and M3; just emit observations.json
+ * @property {boolean}  [m2Only]      skip M3 emission; emit through moodboard-analysis.json
+ * @property {string}   [observationsFile] skip M1; load observations from this file and run M2 (+M3 unless m2Only)
+ * @property {string}   [designFile]  skip M1+M2; load MoodboardDesign from this file and only run M3
  * @property {(evt:object)=>void} [onProgress]  optional per-image callback for spinner/logging
  */
 
@@ -39,13 +42,17 @@ export async function crawlMoodboard(opts) {
     authToken,
     maxImages = 30,
     m1Only = false,
+    m2Only = false,
     observationsFile = null,
+    designFile = null,
     onProgress = () => {},
   } = opts;
 
   if (!name)   throw new Error('crawlMoodboard: `name` is required.');
   if (!outDir) throw new Error('crawlMoodboard: `outDir` is required.');
-  if (!input && !observationsFile) throw new Error('crawlMoodboard: `input` or `observationsFile` is required.');
+  if (!input && !observationsFile && !designFile) {
+    throw new Error('crawlMoodboard: one of `input`, `observationsFile`, or `designFile` is required.');
+  }
 
   const absOutDir = resolve(outDir);
   await mkdir(absOutDir, { recursive: true });
@@ -57,6 +64,28 @@ export async function crawlMoodboard(opts) {
   // for stages it isn't going to invoke.
   let clientLazy = null;
   const getClient = () => (clientLazy ??= new VisionClient({ apiKey, authToken, model }));
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // --design <file>: skip M1 and M2 entirely, run M3 only
+  // ──────────────────────────────────────────────────────────────────────────
+  if (designFile) {
+    onProgress({ stage: 'load_design', file: designFile });
+    const designPayload = JSON.parse(await readFile(resolve(designFile), 'utf-8'));
+    const design = designPayload.design ?? designPayload; // accept either wrapped or bare
+    onProgress({ stage: 'load_design_done', clusters: (design.clusters || []).length });
+
+    const m3Result = await emitFromDesign({
+      design, outDir: absOutDir, name,
+      visionClient: getClient(),
+      onProgress,
+    });
+
+    return {
+      outPath: m3Result.outputs['visual-language.md'] ?? null,
+      m1: null, m2: { design, _stage: 'loaded' }, m3: m3Result,
+      m1OutPath: null, m2OutPath: null,
+    };
+  }
 
   // ──────────────────────────────────────────────────────────────────────────
   // Stage M1 — either run live vision or load from prior observations.json
@@ -96,13 +125,31 @@ export async function crawlMoodboard(opts) {
     onProgress({ stage: 'm2_skipped', reason: `only ${observations.length} successful observations (<2)` });
   }
 
+  // ──────────────────────────────────────────────────────────────────────────
+  // Stage M3 — emit 5 designer-facing files, unless suppressed
+  // ──────────────────────────────────────────────────────────────────────────
+  let m3Result = null;
+  if (m2Payload && !m1Only && !m2Only) {
+    m3Result = await emitFromDesign({
+      design: m2Payload.design,
+      outDir: absOutDir, name,
+      visionClient: getClient(),
+      onProgress,
+    });
+  } else if (m1Only || m2Only) {
+    onProgress({ stage: 'm3_skipped', reason: m1Only ? 'm1Only flag' : 'm2Only flag' });
+  } else if (!m2Payload) {
+    onProgress({ stage: 'm3_skipped', reason: 'no M2 output' });
+  }
+
   return {
-    outPath: m2Payload ? m2OutPath : m1OutPath,
+    outPath: m3Result?.outputs?.['visual-language.md'] ?? (m2Payload ? m2OutPath : m1OutPath),
     m1OutPath,
     m2OutPath: m2Payload ? m2OutPath : null,
-    payload: m1Payload,   // back-compat: callers reading .payload._run still work
+    payload: m1Payload,   // back-compat
     m1: m1Payload,
     m2: m2Payload,
+    m3: m3Result,
   };
 }
 

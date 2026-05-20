@@ -195,6 +195,53 @@ export class VisionClient {
    * Synthesize a MoodboardDesign across the given observations and heuristic clusters.
    * Returns { design, raw, attempts, cacheUsage }.
    */
+  // ────────────────────────────────────────────────────────────────────────────
+  // M3 helper: produce free-form markdown from a (cacheable) system prompt and a
+  // (varying) user prompt. No tool-use, no schema — for emitters whose output IS
+  // markdown text. Caches the system prompt so successive M3 emitters within one
+  // run hit the same prefix.
+  //
+  // Returns { text, raw, cacheUsage }.
+  // ────────────────────────────────────────────────────────────────────────────
+  async generateMarkdown({ systemPrompt, userPrompt, maxTokens = 8192 }) {
+    const req = {
+      model: this.model,
+      max_tokens: maxTokens,
+      system: [
+        {
+          type: 'text',
+          text: systemPrompt,
+          cache_control: { type: 'ephemeral' },
+        },
+      ],
+      messages: [
+        { role: 'user', content: [{ type: 'text', text: userPrompt }] },
+      ],
+    };
+    if (!/^claude-opus-4-7/.test(this.model)) {
+      req.temperature = 0.4; // a touch more creative for narrative output
+    }
+    const resp = await this.client.messages.create(req);
+    const text = (resp?.content || [])
+      .filter((b) => b.type === 'text')
+      .map((b) => b.text)
+      .join('')
+      .trim();
+    return {
+      text,
+      raw: {
+        model: resp?.model ?? null,
+        id: resp?.id ?? null,
+        stop_reason: resp?.stop_reason ?? null,
+        usage: resp?.usage ?? null,
+      },
+      cacheUsage: {
+        cache_creation_input_tokens: resp?.usage?.cache_creation_input_tokens ?? 0,
+        cache_read_input_tokens:     resp?.usage?.cache_read_input_tokens     ?? 0,
+      },
+    };
+  }
+
   async synthesizeMoodboard({ observations, proposedClusters, name = 'moodboard' }) {
     if (!Array.isArray(observations) || observations.length === 0) {
       throw new Error('synthesizeMoodboard: observations[] must be non-empty.');

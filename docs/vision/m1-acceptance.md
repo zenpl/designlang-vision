@@ -252,3 +252,35 @@ Only ONE claim is 10/10 universal ("botanical elements"). All others have partia
 - Consider whether `clusters[].sourceIds` should be disjoint by default and overlap should require an explicit field. Current schema permits overlap and the model used it usefully on img_08, so this may be a feature not a bug. Revisit when more boards land.
 
 **Output:** `out/m12-10img-sonnet/m12-sonnet-{observations,moodboard-analysis}.json` (gitignored).
+
+### 2026-05-20 — M3 emission, 10-image moodboard, sonnet-4-6 — PASS
+
+**Setup:** Ran `moodboard --design ./out/m12-10img-sonnet/m12-sonnet-moodboard-analysis.json` to emit M3 from the prior M2 output (saves the M1+M2 cost of re-running).
+
+**Note on stability:** The first two attempts both 400'd with "Connection error" on the LLM emitter Promise.all. Looking at the failure pattern (both LLM calls in parallel; both fail) it was either Anthropic transient outage or concurrent rate pressure. Fixed in two ways:
+1. **Sequential LLM calls** instead of `Promise.all` — easier failure attribution; avoids concurrent rate pressure.
+2. **`withRetryOnConnError`** wrapper — one manual retry with 2 s backoff on connection-class errors, since the Anthropic SDK's built-in retry doesn't always catch APIConnectionError reliably. Third attempt succeeded.
+
+**Result:** 5/5 files produced; total emission time 322.7 s (including the retry on the first LLM call). M3 cache write 7882 tokens (one-time), 0 reads (each emitter has its own system prompt, no cross-emitter cache sharing). Approximate M3 cost: ~$0.10 on sonnet.
+
+**Output files (`out/m3-10img-sonnet/`, gitignored):**
+
+| File | Size | Notes |
+|---|---|---|
+| `m3-sonnet-design-tokens.json` | 4.5 KB | DTCG-style; valid JSON; 15 color tokens + 5 surface + 5 borderRadius + 7 shadow + 5 typography; merged color + surface under one DTCG group. |
+| `m3-sonnet-tailwind.config.js` | 2.7 KB | Valid CommonJS module; `theme.extend.{colors, borderRadius, boxShadow}` populated; drop-shadow filter tokens correctly emitted as comments (not boxShadow keys). Loadable via `require()` in CJS context. |
+| `m3-sonnet-recipes.css` | 5.9 KB | 5 cluster `@layer` blocks + 1 consensus block + 1 'other' block. 12 `.vrec-*` recipe classes. Cluster references parsed correctly from synthesizer descriptions ("Clusters 1, 2" puts the recipe in both 1 and 2's layers). |
+| `m3-sonnet-visual-language.md` | 22.7 KB / 357 lines | 11 sections in correct order (Style Thesis → Cluster Map → Visual DNA → Material → Depth → Lighting → Composition → Components → Tokens → Recipes → Anti-patterns). Anti-pattern §11 first item: "Do not collapse the five clusters into one aesthetic" — the failure-mode discipline is in the output. |
+| `m3-sonnet-prompts/implementation.md` | 12.4 KB / 164 lines (within ≤200 budget) | 8 sections. Section 4 includes explicit `**Contradicts Cluster N:**` callouts per cluster — cross-cluster contradictions ARE part of the prompt, not derived. Section 7 §7 anti-pattern: "Averaging all clusters into one bland 'soft sage green' aesthetic — each cluster has a distinct depth mechanism; flattening them into a single muted-green flat style erases the dimensional identity." Section 8 maps screen-type to cluster: marketing splash → Cluster 1, mobile dashboard → Cluster 2, e-commerce → Cluster 3, premium feature → Cluster 4, loyalty/onboarding → Cluster 5. |
+
+**Total pipeline cost on this 10-image moodboard:** M1 ~$0.20 + M2 ~$0.10 + M3 ~$0.10 ≈ $0.40. Total wall-clock: ~50 s (M1) + 107 s (M2) + 323 s (M3) ≈ 8 minutes for the full pipeline.
+
+**M3 verdict: passing on every acceptance criterion**:
+- ✅ All 5 files produced
+- ✅ tokens.json valid; tailwind.config.js loads via `require()`; recipes.css has cluster-scoped `@layer` blocks
+- ✅ visual-language.md follows the locked 11-section order; Style Thesis is the first section, tokens are §9 (not §1)
+- ✅ Anti-pattern in BOTH visual-language.md and implementation prompt explicitly names "averaging clusters into one aesthetic" as the failure mode
+- ✅ implementation.md ≤200 lines; uses concrete token names + recipe class names verbatim
+- ✅ Cluster-bound rules in the prompt include cross-cluster contradiction callouts
+
+**Output:** `out/m3-10img-sonnet/m3-sonnet-{design-tokens.json, tailwind.config.js, recipes.css, visual-language.md, prompts/implementation.md}` (all gitignored).
