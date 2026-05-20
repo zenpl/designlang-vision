@@ -115,6 +115,16 @@ test('null palette is allowed', () => {
   assert.equal(validateImageObservation(ok), true, formatValidationErrors(validateImageObservation.errors));
 });
 
+test('omitting an enum field (visualDensity) is allowed; null is not', () => {
+  const omitted = structuredClone(GOOD_OBSERVATION);
+  delete omitted.globalStyle.visualDensity;
+  assert.equal(validateImageObservation(omitted), true, formatValidationErrors(validateImageObservation.errors));
+
+  const nulled = structuredClone(GOOD_OBSERVATION);
+  nulled.globalStyle.visualDensity = null;
+  assert.equal(validateImageObservation(nulled), false);
+});
+
 test('material with missing label fails', () => {
   const bad = structuredClone(GOOD_OBSERVATION);
   bad.materials = [{ evidence: 'something' }];

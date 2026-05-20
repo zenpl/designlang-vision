@@ -173,12 +173,47 @@ test('retry path: invalid schema on attempt 1, valid on attempt 2', async () => 
   assert.equal(result.attempts, 2);
 });
 
-test('constructor throws if no api key found and no client injected', () => {
-  const prev = process.env.ANTHROPIC_API_KEY;
+test('constructor throws if no credential found and no client injected', () => {
+  const prevKey = process.env.ANTHROPIC_API_KEY;
+  const prevTok = process.env.ANTHROPIC_AUTH_TOKEN;
   delete process.env.ANTHROPIC_API_KEY;
+  delete process.env.ANTHROPIC_AUTH_TOKEN;
   try {
-    assert.throws(() => new VisionClient(), /ANTHROPIC_API_KEY not set/);
+    assert.throws(() => new VisionClient(), /No Anthropic credential found/);
   } finally {
-    if (prev !== undefined) process.env.ANTHROPIC_API_KEY = prev;
+    if (prevKey !== undefined) process.env.ANTHROPIC_API_KEY    = prevKey;
+    if (prevTok !== undefined) process.env.ANTHROPIC_AUTH_TOKEN = prevTok;
+  }
+});
+
+test('OAuth token (sk-ant-oat*) passed as apiKey is routed to authToken (Bearer auth)', () => {
+  // We can't observe the outbound request without making one, but we CAN verify the SDK client
+  // was built with authToken set and apiKey null — the SDK's own auth header logic does the rest.
+  const prevKey = process.env.ANTHROPIC_API_KEY;
+  const prevTok = process.env.ANTHROPIC_AUTH_TOKEN;
+  delete process.env.ANTHROPIC_API_KEY;
+  delete process.env.ANTHROPIC_AUTH_TOKEN;
+  try {
+    const v = new VisionClient({ apiKey: 'sk-ant-oat01-fake' });
+    assert.equal(v.client.authToken, 'sk-ant-oat01-fake');
+    assert.equal(v.client.apiKey, null);
+  } finally {
+    if (prevKey !== undefined) process.env.ANTHROPIC_API_KEY    = prevKey;
+    if (prevTok !== undefined) process.env.ANTHROPIC_AUTH_TOKEN = prevTok;
+  }
+});
+
+test('Standard API key (sk-ant-api*) passed as apiKey stays as apiKey (x-api-key auth)', () => {
+  const prevKey = process.env.ANTHROPIC_API_KEY;
+  const prevTok = process.env.ANTHROPIC_AUTH_TOKEN;
+  delete process.env.ANTHROPIC_API_KEY;
+  delete process.env.ANTHROPIC_AUTH_TOKEN;
+  try {
+    const v = new VisionClient({ apiKey: 'sk-ant-api03-fake' });
+    assert.equal(v.client.apiKey, 'sk-ant-api03-fake');
+    assert.equal(v.client.authToken, null);
+  } finally {
+    if (prevKey !== undefined) process.env.ANTHROPIC_API_KEY    = prevKey;
+    if (prevTok !== undefined) process.env.ANTHROPIC_AUTH_TOKEN = prevTok;
   }
 });

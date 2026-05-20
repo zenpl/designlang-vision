@@ -24,11 +24,32 @@ export const DEFAULT_MODEL = 'claude-sonnet-4-6';
 const DEFAULT_MAX_TOKENS = 4096;
 
 export class VisionClient {
-  constructor({ apiKey, model = DEFAULT_MODEL, maxTokens = DEFAULT_MAX_TOKENS, anthropicClient = null } = {}) {
-    if (!anthropicClient && !apiKey && !process.env.ANTHROPIC_API_KEY) {
-      throw new Error('ANTHROPIC_API_KEY not set. Pass --api-key or export ANTHROPIC_API_KEY.');
+  constructor({ apiKey, authToken, model = DEFAULT_MODEL, maxTokens = DEFAULT_MAX_TOKENS, anthropicClient = null } = {}) {
+    if (!anthropicClient) {
+      // Resolution order:
+      //   1) explicit authToken arg / ANTHROPIC_AUTH_TOKEN env  → Bearer auth (OAuth access tokens, agent tokens)
+      //   2) explicit apiKey arg / ANTHROPIC_API_KEY env, **but** if the value starts with `sk-ant-oat` it's actually
+      //      an OAuth access token even though it was passed via the API_KEY slot → switch to Bearer auth.
+      //   3) explicit apiKey arg / ANTHROPIC_API_KEY env → x-api-key auth (standard API keys)
+      const explicitAuth = authToken ?? process.env.ANTHROPIC_AUTH_TOKEN;
+      const explicitApi  = apiKey    ?? process.env.ANTHROPIC_API_KEY;
+
+      let useToken = explicitAuth ?? null;
+      let useApi   = explicitApi  ?? null;
+
+      if (!useToken && useApi && /^sk-ant-oat/.test(useApi)) {
+        useToken = useApi;
+        useApi = null;
+      }
+
+      if (!useToken && !useApi) {
+        throw new Error('No Anthropic credential found. Set ANTHROPIC_API_KEY (standard key) or ANTHROPIC_AUTH_TOKEN (OAuth/agent token).');
+      }
+
+      this.client = new Anthropic({ apiKey: useApi, authToken: useToken });
+    } else {
+      this.client = anthropicClient;
     }
-    this.client = anthropicClient ?? new Anthropic({ apiKey: apiKey ?? process.env.ANTHROPIC_API_KEY });
     this.model = model;
     this.maxTokens = maxTokens;
   }

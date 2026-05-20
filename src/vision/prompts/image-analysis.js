@@ -12,6 +12,42 @@
 
 import { imageObservationSchema } from '../schemas/validate.js';
 
+// Anthropic's strict-mode tool input_schema rejects several otherwise-valid JSON Schema 7
+// keywords (numerical bounds, string length bounds, etc.). We keep the full schema for local
+// Ajv validation and ship a stripped copy in the tool. Local validation is the safety net.
+//
+// See claude-api skill / "Structured Outputs" section: `minimum / maximum / multipleOf /
+// minLength / maxLength / pattern (on numbers) / complex array constraints` are not supported.
+const STRICT_MODE_UNSUPPORTED_KEYS = new Set([
+  'minimum',
+  'maximum',
+  'exclusiveMinimum',
+  'exclusiveMaximum',
+  'multipleOf',
+  'minLength',
+  'maxLength',
+  'minItems',
+  'maxItems',
+  'uniqueItems',
+  'minProperties',
+  'maxProperties',
+]);
+
+function stripUnsupportedForStrictMode(node) {
+  if (Array.isArray(node)) return node.map(stripUnsupportedForStrictMode);
+  if (node && typeof node === 'object') {
+    const out = {};
+    for (const [k, v] of Object.entries(node)) {
+      if (STRICT_MODE_UNSUPPORTED_KEYS.has(k)) continue;
+      out[k] = stripUnsupportedForStrictMode(v);
+    }
+    return out;
+  }
+  return node;
+}
+
+const STRICT_MODE_SAFE_SCHEMA = stripUnsupportedForStrictMode(imageObservationSchema);
+
 // ── System prompt ─────────────────────────────────────────────────────────────
 // The prompt's job is to FORCE specificity. The acceptance criterion is that
 // 3 distinct moodboard styles (photographic plant ecommerce / dark forest diorama /
@@ -73,12 +109,15 @@ You will be given an image and a brief context line. Call the \`record_observati
 // by it. We pin strict:true so Anthropic enforces additionalProperties:false and the
 // "no extra fields" contract.
 
+// We deliberately do NOT set strict: true. The strict-mode subset has hard limits
+// that conflict with the rich shape we want to capture (no numeric minima/maxima;
+// no enum/null union; max 24 optional fields; max 5 levels of nesting). The local
+// Ajv pass + repair-prompt retry covers what strict mode would have enforced. If
+// we ever drop below 24 optional fields and lose the numeric constraints, revisit.
 export const RECORD_OBSERVATION_TOOL = {
   name: 'record_observation',
   description: 'Emit the structured visual observation for the analyzed image. This is the only output channel — call it exactly once.',
-  // strict: true forces Anthropic-side schema enforcement (extra props rejected, types checked).
-  strict: true,
-  input_schema: imageObservationSchema,
+  input_schema: STRICT_MODE_SAFE_SCHEMA,
 };
 
 // ── User-content template ─────────────────────────────────────────────────────

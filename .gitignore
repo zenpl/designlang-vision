@@ -3,6 +3,7 @@ design-extract-output/
 test-output/
 out/
 samples/
+tests/assets/
 *.log
 .DS_Store
 .vercel/

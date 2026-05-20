@@ -2051,13 +2051,21 @@ program
   .option('-n, --name <name>', 'output file prefix', 'moodboard')
   .option('--model <id>', 'Anthropic model id', 'claude-sonnet-4-6')
   .option('--max-images <n>', 'max images per run (safety cap, M1 prefers ≤30)', '30')
-  .option('--api-key <key>', 'Anthropic API key (overrides ANTHROPIC_API_KEY env)')
-  .action(async (pathOrGlob, opts) => {
+  .option('--api-key <key>', 'Anthropic API key (overrides ANTHROPIC_API_KEY env; standard sk-ant-api* key)')
+  .option('--auth-token <token>', 'Anthropic OAuth/agent token (overrides ANTHROPIC_AUTH_TOKEN env; sk-ant-oat* token)')
+  .action(async function (pathOrGlob, _opts) {
     const { crawlMoodboard } = await import('../src/vision/crawl-moodboard.js');
+
+    // The root `program` also defines -o/--out and -n/--name (for the URL-extract command).
+    // commander v12 routes explicit values to the parent in that case, leaving our subcommand
+    // opts on default. optsWithGlobals() merges parent + child so the user's CLI input wins.
+    const opts = this.optsWithGlobals();
 
     console.log('');
     console.log(chalk.bold('  designlang-vision moodboard (M1)'));
     console.log(chalk.gray(`  input: ${pathOrGlob}`));
+    console.log(chalk.gray(`  out:   ${opts.out}`));
+    console.log(chalk.gray(`  name:  ${opts.name}`));
     console.log(chalk.gray(`  model: ${opts.model}`));
     console.log('');
 
@@ -2069,6 +2077,7 @@ program
         name: opts.name,
         model: opts.model,
         apiKey: opts.apiKey,
+        authToken: opts.authToken,
         maxImages: parseInt(opts.maxImages, 10) || 30,
         onProgress: (evt) => {
           switch (evt.stage) {

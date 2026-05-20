@@ -27,8 +27,8 @@
       "properties": {
         "styleLabels":   { "type": "array", "items": { "type": "string" }, "description": "Specific labels like 'botanical', '3d-diorama', 'frosted-glass'. NOT vague mood labels." },
         "mood":          { "type": "array", "items": { "type": "string" } },
-        "visualDensity": { "type": ["string", "null"], "enum": [null, "low", "medium", "high"] },
-        "realismLevel":  { "type": ["string", "null"], "enum": [null, "flat-illustration", "semi-realistic-3d", "photographic", "screenshot", "mixed"] }
+        "visualDensity": { "type": "string", "enum": ["low", "medium", "high"] },
+        "realismLevel":  { "type": "string", "enum": ["flat-illustration", "semi-realistic-3d", "photographic", "screenshot", "mixed"] }
       },
       "required": ["styleLabels"]
     },
@@ -39,8 +39,8 @@
         "dominant":    { "type": "array", "items": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" }, "description": "Up to 5 dominant hex colors." },
         "accent":      { "type": "array", "items": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" } },
         "neutrals":    { "type": "array", "items": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" } },
-        "temperature": { "type": ["string", "null"], "enum": [null, "cool", "neutral", "warm", "warm-muted"] },
-        "saturation":  { "type": ["string", "null"], "enum": [null, "low", "low-to-medium", "medium", "high"] }
+        "temperature": { "type": "string", "enum": ["cool", "neutral", "warm", "warm-muted"] },
+        "saturation":  { "type": "string", "enum": ["low", "low-to-medium", "medium", "high"] }
       }
     },
     "materials": {

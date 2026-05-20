@@ -13,7 +13,8 @@ import { VisionClient, DEFAULT_MODEL } from './vision-client.js';
  * @property {string}   outDir        directory for outputs (created if absent)
  * @property {string}   name          file prefix for outputs
  * @property {string}   [model]       default 'claude-sonnet-4-6'
- * @property {string}   [apiKey]      overrides ANTHROPIC_API_KEY env
+ * @property {string}   [apiKey]      overrides ANTHROPIC_API_KEY env (standard API key)
+ * @property {string}   [authToken]   overrides ANTHROPIC_AUTH_TOKEN env (OAuth/agent token, sk-ant-oat*)
  * @property {number}   [maxImages]   safety cap; default 30 for M1
  * @property {(evt:object)=>void} [onProgress]  optional per-image callback for spinner/logging
  */
@@ -26,6 +27,7 @@ export async function crawlMoodboard(opts) {
     name,
     model = DEFAULT_MODEL,
     apiKey,
+    authToken,
     maxImages = 30,
     onProgress = () => {},
   } = opts;
@@ -40,7 +42,7 @@ export async function crawlMoodboard(opts) {
   onProgress({ stage: 'load_done', count: images.length });
 
   // 2. Analyze each image with the vision client.
-  const client = new VisionClient({ apiKey, model });
+  const client = new VisionClient({ apiKey, authToken, model });
 
   const observations = [];
   const errors = [];
