@@ -35,7 +35,12 @@ git log fork-base..upstream/main         # what's new upstream since we forked
     - **sonnet-4-6**: 3/3 ok, ~$0.10 — adopted as **default**; rich method-level hints, prompt cache verified (6672 read / 3336 write)
     - opus-4-7: 3/3 ok with 1 repair retry triggered (production-validates the retry pipeline), ~$0.40–0.50 — value-level CSS hints with concrete numerics; opus's anti-pattern for img_03 spontaneously references "a different moodboard" (does M2 cluster reasoning inside M1). **Recommended for M3 emission.** Sonnet sufficient for M2.
     - Full comparison + cost table in `docs/vision/m1-acceptance.md` Run log
-- ⏳ M2 (cluster + synthesis) — not started
+- ✅ **M2 verified — cluster + synthesis works on real images**
+  - Adds command flags `--m1-only` (skip M2) and `--observations <file>` (M2-only on prior M1 output)
+  - Source files: `src/vision/cluster.js` (Jaccard styleLabels + Jaccard materials + LAB palette distance), `src/vision/prompts/moodboard-synthesis.js`, `src/vision/schemas/moodboard-design.schema.json`. `vision-client.js` gains `synthesizeMoodboard()`. `crawl-moodboard.js` refactored into M1/M2 stage runners.
+  - 47/47 unit tests pass (M1 26 + M2 21). The M2 acceptance test (6 deliberately-incompatible images → ≥2 clusters with no cross-pollution) is `tests/vision/cluster.test.js`.
+  - **Live M2 baseline** on the 3-style fixture (M2-only run on prior sonnet observations): 3 clusters with specific names; every `dnaSummary` starts with "The only cluster using..."; 11 consensus claims, all carry `supportSourceIds`; one claim correctly limits its support to [img_01, img_03] when img_02 doesn't fit. Tokens draft includes concrete hex + semantic names ready for M3.
+- ⏳ M3 (extractors + emitters: visual-language.md, design-tokens.json, tailwind.config.js, recipes.css, prompts/implementation.md) — not started
 
 ## Don't do without checking with the user
 

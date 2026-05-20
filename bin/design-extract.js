@@ -2045,12 +2045,14 @@ program
 // clustering, no emitters. Other M-stages will register sibling subcommands.
 
 program
-  .command('moodboard <pathOrGlob>')
-  .description('Vision: analyze a folder/glob of moodboard images into per-image observations (M1)')
+  .command('moodboard [pathOrGlob]')
+  .description('Vision: M1 per-image observations + M2 cluster + synthesis of a moodboard')
   .option('-o, --out <dir>', 'output directory', './design-extract-output')
   .option('-n, --name <name>', 'output file prefix', 'moodboard')
   .option('--model <id>', 'Anthropic model id', 'claude-sonnet-4-6')
   .option('--max-images <n>', 'max images per run (safety cap, M1 prefers ≤30)', '30')
+  .option('--m1-only', 'skip M2 (cluster + synthesis); emit observations.json only')
+  .option('--observations <file>', 'skip M1; load prior observations.json and only run M2')
   .option('--api-key <key>', 'Anthropic API key (overrides ANTHROPIC_API_KEY env; standard sk-ant-api* key)')
   .option('--auth-token <token>', 'Anthropic OAuth/agent token (overrides ANTHROPIC_AUTH_TOKEN env; sk-ant-oat* token)')
   .action(async function (pathOrGlob, _opts) {
@@ -2061,12 +2063,20 @@ program
     // opts on default. optsWithGlobals() merges parent + child so the user's CLI input wins.
     const opts = this.optsWithGlobals();
 
+    if (!pathOrGlob && !opts.observations) {
+      console.error(chalk.red('\n  Must pass <pathOrGlob> argument OR --observations <file>.\n'));
+      process.exit(1);
+    }
+
+    const stagesLabel = opts.observations ? 'M2-only' : (opts.m1Only ? 'M1-only' : 'M1 + M2');
+
     console.log('');
-    console.log(chalk.bold('  designlang-vision moodboard (M1)'));
-    console.log(chalk.gray(`  input: ${pathOrGlob}`));
-    console.log(chalk.gray(`  out:   ${opts.out}`));
-    console.log(chalk.gray(`  name:  ${opts.name}`));
-    console.log(chalk.gray(`  model: ${opts.model}`));
+    console.log(chalk.bold(`  designlang-vision moodboard (${stagesLabel})`));
+    if (pathOrGlob)      console.log(chalk.gray(`  input:        ${pathOrGlob}`));
+    if (opts.observations) console.log(chalk.gray(`  observations: ${opts.observations}`));
+    console.log(chalk.gray(`  out:          ${opts.out}`));
+    console.log(chalk.gray(`  name:         ${opts.name}`));
+    console.log(chalk.gray(`  model:        ${opts.model}`));
     console.log('');
 
     const spinner = ora('Loading images...').start();
@@ -2079,10 +2089,15 @@ program
         apiKey: opts.apiKey,
         authToken: opts.authToken,
         maxImages: parseInt(opts.maxImages, 10) || 30,
+        m1Only: !!opts.m1Only,
+        observationsFile: opts.observations,
         onProgress: (evt) => {
           switch (evt.stage) {
             case 'load_done':
               spinner.text = `Loaded ${evt.count} image(s). Analyzing...`;
+              break;
+            case 'load_observations_done':
+              spinner.text = `Loaded ${evt.count} prior observation(s). Synthesizing...`;
               break;
             case 'analyze_start':
               spinner.text = `[${evt.index + 1}/${evt.total}] ${evt.id} (${evt.filename})`;
@@ -2097,22 +2112,53 @@ program
               spinner.warn(`[${evt.index + 1}/${evt.total}] ${evt.id} ✗ ${chalk.red(evt.error)}`);
               spinner.start();
               break;
-            case 'write_done':
-              // Final summary printed by spinner.succeed below
+            case 'm2_cluster_done':
+              spinner.text = `Heuristic clusters: ${evt.clusters}. Calling synthesizer...`;
+              break;
+            case 'm2_synth_done': {
+              const tag = evt.attempts > 1 ? chalk.yellow(` (repaired ×${evt.attempts})`) : '';
+              spinner.info(`M2 synthesis ✓${tag} in ${(evt.durationMs / 1000).toFixed(1)}s`);
+              spinner.start();
+              break;
+            }
+            case 'm2_skipped':
+              spinner.info(chalk.gray(`M2 skipped — ${evt.reason}`));
+              spinner.start();
               break;
           }
         },
       });
 
-      const { outPath, payload } = result;
-      const { successCount, errorCount, cacheStats } = payload._run;
-      spinner.succeed(`Done — ${successCount} ok, ${errorCount} failed.`);
+      const { m1, m2, m1OutPath, m2OutPath } = result;
+      const successCount = m1?._run?.successCount ?? (m1?.observations?.length ?? 0);
+      const errorCount   = m1?._run?.errorCount ?? 0;
+
+      spinner.succeed(m2
+        ? `Done — M1: ${successCount} ok, ${errorCount} failed. M2: ${m2.design.clusters.length} cluster(s).`
+        : `Done — M1: ${successCount} ok, ${errorCount} failed.`);
       console.log('');
-      console.log(`  ${chalk.green('✓')} ${chalk.cyan(outPath)}`);
-      console.log(chalk.gray(`  cache: ${cacheStats.read} read tokens, ${cacheStats.creation} write tokens`));
+      if (m1?._run) console.log(`  ${chalk.green('✓')} ${chalk.cyan(m1OutPath)}`);
+      if (m2OutPath) console.log(`  ${chalk.green('✓')} ${chalk.cyan(m2OutPath)}`);
+
+      if (m1?._run?.cacheStats) {
+        const { read, creation } = m1._run.cacheStats;
+        console.log(chalk.gray(`  M1 cache: ${read} read tokens, ${creation} write tokens`));
+      }
+      if (m2?._run?.cacheUsage) {
+        const { cache_read_input_tokens: r, cache_creation_input_tokens: w } = m2._run.cacheUsage;
+        console.log(chalk.gray(`  M2 cache: ${r} read tokens, ${w} write tokens`));
+      }
+      if (m2) {
+        console.log('');
+        console.log(chalk.bold(`  Thesis:`) + ` ${m2.design.styleThesis}`);
+        for (const c of m2.design.clusters) {
+          const w = (c.weight * 100).toFixed(0);
+          console.log(`  ${chalk.cyan('cluster')} ${c.name} (${w}%, ${c.sourceIds.length} img) — ${(c.dnaSummary || '').slice(0, 80)}`);
+        }
+      }
       if (errorCount > 0) {
         console.log('');
-        for (const e of payload.errors) {
+        for (const e of (m1?.errors ?? [])) {
           console.log(chalk.red(`  ✗ ${e.id} (${e.filename}): ${e.message}`));
         }
       }

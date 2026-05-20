@@ -18,10 +18,23 @@ import {
   buildUserContent,
   buildRepairUserContent,
 } from './prompts/image-analysis.js';
-import { assertImageObservation, formatValidationErrors, validateImageObservation } from './schemas/validate.js';
+import {
+  MOODBOARD_SYNTHESIS_SYSTEM_PROMPT,
+  RECORD_MOODBOARD_DESIGN_TOOL,
+  buildSynthesisUserContent,
+  buildSynthesisRepairUserContent,
+} from './prompts/moodboard-synthesis.js';
+import {
+  assertImageObservation,
+  assertMoodboardDesign,
+  formatValidationErrors,
+  validateImageObservation,
+  validateMoodboardDesign,
+} from './schemas/validate.js';
 
 export const DEFAULT_MODEL = 'claude-sonnet-4-6';
 const DEFAULT_MAX_TOKENS = 4096;
+const SYNTHESIS_MAX_TOKENS = 8192; // synthesis output is larger — schema is richer
 
 export class VisionClient {
   constructor({ apiKey, authToken, model = DEFAULT_MODEL, maxTokens = DEFAULT_MAX_TOKENS, anthropicClient = null } = {}) {
@@ -106,7 +119,7 @@ export class VisionClient {
     };
 
     let resp = await this.client.messages.create(firstReq);
-    let toolBlock = extractToolUseBlock(resp);
+    let toolBlock = extractToolUseBlock(resp, RECORD_OBSERVATION_TOOL.name);
     let validationErrorsText = null;
 
     if (toolBlock) {
@@ -137,7 +150,7 @@ export class VisionClient {
     };
 
     resp = await this.client.messages.create(repairReq);
-    toolBlock = extractToolUseBlock(resp);
+    toolBlock = extractToolUseBlock(resp, RECORD_OBSERVATION_TOOL.name);
     if (!toolBlock) {
       const err = new Error(`Model did not call record_observation after repair attempt (image ${imageMeta.id}).`);
       err.kind = 'no_tool_call';
@@ -148,14 +161,108 @@ export class VisionClient {
     assertImageObservation(candidate); // throws on second-attempt schema failure
     return packResult(candidate, resp, 2);
   }
+
+  // ────────────────────────────────────────────────────────────────────────────
+  // M2: synthesize a MoodboardDesign across N observations.
+  //
+  // Same shape as analyzeImage: tool-forced JSON, repair-on-failure retry,
+  // prompt caching on the (different) M2 system prompt + tool definition.
+  // Note that the cache prefix is DIFFERENT from M1 — caches don't share.
+  //
+  // Input is text only (no images). Cost scales with observation count, not pixels.
+  // ────────────────────────────────────────────────────────────────────────────
+  _stableSynthesisRequest() {
+    const req = {
+      model: this.model,
+      max_tokens: SYNTHESIS_MAX_TOKENS,
+      tools: [RECORD_MOODBOARD_DESIGN_TOOL],
+      tool_choice: { type: 'tool', name: RECORD_MOODBOARD_DESIGN_TOOL.name },
+      system: [
+        {
+          type: 'text',
+          text: MOODBOARD_SYNTHESIS_SYSTEM_PROMPT,
+          cache_control: { type: 'ephemeral' },
+        },
+      ],
+    };
+    if (!/^claude-opus-4-7/.test(this.model)) {
+      req.temperature = 0.2;
+    }
+    return req;
+  }
+
+  /**
+   * Synthesize a MoodboardDesign across the given observations and heuristic clusters.
+   * Returns { design, raw, attempts, cacheUsage }.
+   */
+  async synthesizeMoodboard({ observations, proposedClusters, name = 'moodboard' }) {
+    if (!Array.isArray(observations) || observations.length === 0) {
+      throw new Error('synthesizeMoodboard: observations[] must be non-empty.');
+    }
+
+    const stable = this._stableSynthesisRequest();
+
+    // ── Attempt 1 ──────────────────────────────────────────────────────────
+    const firstReq = {
+      ...stable,
+      messages: [
+        {
+          role: 'user',
+          content: buildSynthesisUserContent({ observations, proposedClusters, name }),
+        },
+      ],
+    };
+
+    let resp = await this.client.messages.create(firstReq);
+    let toolBlock = extractToolUseBlock(resp, RECORD_MOODBOARD_DESIGN_TOOL.name);
+    let validationErrorsText = null;
+
+    if (toolBlock) {
+      const candidate = toolBlock.input;
+      if (validateMoodboardDesign(candidate)) {
+        return packSynthesisResult(candidate, resp, 1);
+      }
+      validationErrorsText = formatValidationErrors(validateMoodboardDesign.errors);
+    }
+
+    // ── Attempt 2 — repair ─────────────────────────────────────────────────
+    const repairReq = {
+      ...stable,
+      messages: [
+        {
+          role: 'user',
+          content: buildSynthesisRepairUserContent({
+            observations,
+            proposedClusters,
+            name,
+            prevAttemptDescription: toolBlock
+              ? `tool call with invalid input fields`
+              : describeNonToolResponse(resp),
+            validationErrors: validationErrorsText,
+          }),
+        },
+      ],
+    };
+
+    resp = await this.client.messages.create(repairReq);
+    toolBlock = extractToolUseBlock(resp, RECORD_MOODBOARD_DESIGN_TOOL.name);
+    if (!toolBlock) {
+      const err = new Error(`Model did not call record_moodboard_design after repair attempt.`);
+      err.kind = 'no_tool_call';
+      err.rawResponse = resp;
+      throw err;
+    }
+    assertMoodboardDesign(toolBlock.input);
+    return packSynthesisResult(toolBlock.input, resp, 2);
+  }
 }
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
-function extractToolUseBlock(resp) {
+function extractToolUseBlock(resp, expectedToolName) {
   if (!resp?.content) return null;
   for (const block of resp.content) {
-    if (block.type === 'tool_use' && block.name === RECORD_OBSERVATION_TOOL.name) return block;
+    if (block.type === 'tool_use' && block.name === expectedToolName) return block;
   }
   return null;
 }
@@ -184,6 +291,23 @@ function withSourceFromMeta(modelInput, meta) {
 function packResult(observation, rawResponse, attempts) {
   return {
     observation,
+    raw: {
+      model: rawResponse?.model ?? null,
+      id: rawResponse?.id ?? null,
+      stop_reason: rawResponse?.stop_reason ?? null,
+      usage: rawResponse?.usage ?? null,
+    },
+    attempts,
+    cacheUsage: {
+      cache_creation_input_tokens: rawResponse?.usage?.cache_creation_input_tokens ?? 0,
+      cache_read_input_tokens:     rawResponse?.usage?.cache_read_input_tokens     ?? 0,
+    },
+  };
+}
+
+function packSynthesisResult(design, rawResponse, attempts) {
+  return {
+    design,
     raw: {
       model: rawResponse?.model ?? null,
       id: rawResponse?.id ?? null,

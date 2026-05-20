@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "moodboard-design.schema.json",
+  "title": "MoodboardDesign",
+  "description": "Synthesis output across all images in a moodboard. Mirrors docs/vision/architecture.md §4.2. The core discipline: clusters[] is a first-class object; consensus claims MUST carry supportSourceIds — every claim is traceable to specific images. If <2 images support a claim it belongs in cluster.dnaSummary, not in consensus.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["styleThesis", "sourceCount", "clusters", "consensus"],
+  "properties": {
+    "styleThesis": {
+      "type": "string",
+      "description": "Short label for the overall thesis. Specific, not vibey. ≤80 chars. e.g. 'Botanical Dimensional UI', 'Editorial Plant Commerce + Diorama'. NOT 'Modern soft green design'."
+    },
+    "sourceCount": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Count of source images analyzed."
+    },
+    "clusters": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Sub-theses inside the moodboard. Each cluster has its own DNA, weight, and source set. Cluster names must be specific labels, not vibe descriptors.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "sourceIds", "weight"],
+        "properties": {
+          "name":         { "type": "string", "description": "e.g. 'Pastel Clay Botanical Dashboard', 'Editorial Plant Commerce'." },
+          "sourceIds":    { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "weight":       { "type": "number", "minimum": 0, "maximum": 1 },
+          "dnaSummary":   { "type": "string", "description": "What's unique to this cluster vs the others — the cross-cluster differentiator." },
+          "localClaims":  {
+            "type": "array",
+            "description": "Claims that hold WITHIN this cluster but NOT across all clusters. These would have been consensus if they had ≥2-cluster support, but didn't, so they live here.",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "consensus": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Claims that hold ACROSS clusters. Every claim carries supportSourceIds — without it, the claim is ungrounded and rejected.",
+      "properties": {
+        "materials":   { "type": "array", "items": { "$ref": "#/definitions/supportedClaim" } },
+        "lighting":    { "type": "array", "items": { "$ref": "#/definitions/supportedClaim" } },
+        "depth":       { "type": "array", "items": { "$ref": "#/definitions/supportedClaim" } },
+        "palette":     { "type": "array", "items": { "$ref": "#/definitions/supportedClaim" } },
+        "components":  { "type": "array", "items": { "$ref": "#/definitions/supportedClaim" } },
+        "implementationRules": { "type": "array", "items": { "$ref": "#/definitions/supportedClaim" } }
+      }
+    },
+    "tokens": {
+      "type": "object",
+      "description": "Token candidates with source attribution. M2 produces drafts; M3 emitters refine. May be empty for moodboards with too little signal.",
+      "additionalProperties": true
+    },
+    "recipes": {
+      "type": "object",
+      "description": "CSS recipe candidates (cluster-scoped or consensus). Draft only — M3 finalizes.",
+      "additionalProperties": true
+    },
+    "confidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "overall":     { "type": "number", "minimum": 0, "maximum": 1 },
+        "perCluster":  { "type": "array", "items": { "type": "number", "minimum": 0, "maximum": 1 } }
+      }
+    }
+  },
+  "definitions": {
+    "supportedClaim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "supportSourceIds"],
+      "properties": {
+        "label":             { "type": "string", "description": "The claim itself." },
+        "evidence":          { "type": "string", "description": "Why this claim holds — what cross-image pattern justifies it." },
+        "supportSourceIds":  { "type": "array", "minItems": 1, "items": { "type": "string" }, "description": "Source IDs from observations that support this claim. MANDATORY — no claim without grounding." },
+        "supportClusterNames":{ "type": "array", "items": { "type": "string" }, "description": "Optional: which clusters this claim spans." },
+        "confidence":        { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    }
+  }
+}
