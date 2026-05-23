@@ -1,0 +1,145 @@
+<!doctype html>
+<!--
+  BEFORE — 种子集市 (pdx-gardener) 首页 hero, current visual language.
+  CSS lifted from frontend/index.html:24-280 (token definitions + relevant rules).
+  Layout structure copied from frontend/index.html:353-371 verbatim.
+  User photos = placeholder squares (we don't have real user uploads for this static demo).
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>菜友集市 · before</title>
+<style>
+/* === pdx-gardener current CSS (excerpt, verbatim from index.html) === */
+:root {
+  --primary:#2D6A4F;
+  --primary-deep:#1B4332;
+  --primary-soft:#D8F3DC;
+  --primary-light:#95D5B2;
+
+  --bg-page:#F5F0EB;
+  --bg-card:#FDFAF7;
+  --bg-soft:#FAF7F2;
+
+  --text:#2D3436;
+  --text-secondary:#636E72;
+  --text-body:#555B5A;
+  --muted:#636E72;
+
+  --shadow-1:0 2px 8px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.06);
+
+  --radius-card:12px;
+  --radius-btn:10px;
+  --radius-tag:6px;
+  --radius-pill:9999px;
+
+  --fs-xs:12px;
+  --fs-sm:14px;
+  --fs-md:16px;
+  --fs-lg:18px;
+  --fs-display:28px;
+
+  --sp-1:4px;
+  --sp-2:8px;
+  --sp-3:12px;
+  --sp-4:16px;
+  --sp-5:24px;
+}
+html,body{font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif;background:var(--bg-page);color:var(--text);font-size:var(--fs-sm);line-height:1.55;min-height:100vh;overflow-x:hidden;margin:0}
+.view{padding:var(--sp-4);max-width:420px;margin:0 auto;padding-bottom:80px}
+.muted{color:var(--text-secondary);font-size:var(--fs-xs);line-height:1.5}
+.link{color:var(--primary);cursor:pointer;text-decoration:none;border-bottom:1px dashed var(--primary);padding-bottom:1px}
+
+button,.btn{display:inline-flex;align-items:center;justify-content:center;padding:var(--sp-3) var(--sp-5);border:none;border-radius:var(--radius-btn);background:var(--primary);color:#fff;font-size:var(--fs-sm);font-weight:500;cursor:pointer;min-height:44px}
+.btn-block{width:100%;padding:var(--sp-4);font-size:var(--fs-md);font-weight:600;margin-top:var(--sp-3);border-radius:var(--radius-pill)}
+.btn-line{background:var(--bg-card);color:var(--primary);border:1px solid var(--primary)}
+
+.home-hero-title{font-size:var(--fs-display);letter-spacing:-0.02em;line-height:1.15;margin-bottom:var(--sp-3);font-weight:700}
+.home-sub{font-size:var(--fs-sm);color:var(--muted);margin-top:var(--sp-1);line-height:1.4}
+.home-actions{display:flex;gap:var(--sp-2);margin-top:var(--sp-3)}
+.home-actions .btn-block{flex:1;margin:0}
+.home-section-head{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-2);margin:var(--sp-5) 0 var(--sp-2)}
+.home-section-head h2{margin:0;font-size:var(--fs-lg)}
+.home-section-head .link{font-size:var(--fs-sm)}
+
+.count-badge{display:inline-flex;align-items:center;background:var(--primary-light);color:var(--primary-deep);font-size:var(--fs-xs);font-weight:600;padding:2px var(--sp-2);border-radius:var(--radius-tag);margin-left:var(--sp-2);line-height:1.5}
+
+/* market card row, simplified */
+.exchange-card{display:flex;gap:var(--sp-3);padding:var(--sp-3);background:var(--bg-card);border-radius:var(--radius-card);box-shadow:var(--shadow-1);margin-bottom:var(--sp-3)}
+.exchange-thumb{width:80px;height:80px;flex-shrink:0;border-radius:8px;background:#E8E0D0;display:flex;align-items:center;justify-content:center;color:#999;font-size:24px;overflow:hidden}
+.exchange-thumb img{width:100%;height:100%;object-fit:cover}
+.exchange-body{flex:1;min-width:0}
+.exchange-title{font-size:var(--fs-md);font-weight:600;color:var(--text);margin-bottom:var(--sp-1)}
+.exchange-meta{font-size:var(--fs-xs);color:var(--muted);margin-bottom:var(--sp-1)}
+.exchange-tags{display:flex;gap:var(--sp-1);margin-top:4px;flex-wrap:wrap}
+.tag{display:inline-flex;align-items:center;padding:2px var(--sp-2);font-size:var(--fs-xs);border-radius:var(--radius-tag);background:var(--primary-light);color:var(--primary-deep)}
+.tag-free{background:var(--primary-light);color:var(--primary-deep)}
+.tag-paid{background:#FCE4D9;color:#A04D3A}
+.tag-barter{background:#FCEEC3;color:#8A6A1E}
+
+.home-view-all{margin-top:var(--sp-3)}
+</style>
+</head>
+<body>
+
+<div class="view">
+  <h1 class="home-hero-title">🌱 菜友集市</h1>
+  <div class="home-sub">Portland 华人菜友周末大会 · 本周六 5月17日 11:00–2:30 · 📍<a class="link" style="color:var(--primary);text-decoration:none;border-bottom:1px solid var(--primary)">Tushita Farm</a></div>
+
+  <div class="home-actions">
+    <button class="btn-block">🌾 我要出让</button>
+    <button class="btn-block">🌿 我想获得</button>
+  </div>
+
+  <div class="home-section-head">
+    <h2>供 <span class="count-badge">12</span></h2>
+    <a class="link">查看全部 →</a>
+  </div>
+
+  <!-- 3 placeholder market cards -->
+  <div class="exchange-card">
+    <div class="exchange-thumb">🍅</div>
+    <div class="exchange-body">
+      <div class="exchange-title">辣椒苗 · 朝天椒</div>
+      <div class="exchange-meta">老王 · 剩余 8 株 · 2 小时前</div>
+      <div class="exchange-tags"><span class="tag tag-free">免费</span><span class="tag">会带去</span></div>
+    </div>
+  </div>
+
+  <div class="exchange-card">
+    <div class="exchange-thumb">🌶</div>
+    <div class="exchange-body">
+      <div class="exchange-title">番茄籽 · 樱桃番茄</div>
+      <div class="exchange-meta">林姐 · 剩余 20 包 · 昨天</div>
+      <div class="exchange-tags"><span class="tag tag-barter">换物</span><span class="tag">需确认</span></div>
+    </div>
+  </div>
+
+  <div class="exchange-card">
+    <div class="exchange-thumb">🌱</div>
+    <div class="exchange-body">
+      <div class="exchange-title">薄荷苗 · 苹果薄荷</div>
+      <div class="exchange-meta">张老师 · 剩余 5 株 · 3 天前</div>
+      <div class="exchange-tags"><span class="tag tag-paid">$2/株</span><span class="tag">会带去</span></div>
+    </div>
+  </div>
+
+  <div class="home-section-head">
+    <h2>求 <span class="count-badge">8</span></h2>
+    <a class="link">查看全部 →</a>
+  </div>
+
+  <div class="exchange-card">
+    <div class="exchange-thumb">📋</div>
+    <div class="exchange-body">
+      <div class="exchange-title">寻 · 韭菜种子</div>
+      <div class="exchange-meta">小赵 · 需 1 包 · 1 小时前</div>
+    </div>
+  </div>
+
+  <button class="btn-line btn-block home-view-all">🛒 查看全部集市</button>
+</div>
+
+</body>
+</html>
