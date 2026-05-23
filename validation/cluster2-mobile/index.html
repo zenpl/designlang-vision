@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Stillness — wellness sessions</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+    <link rel="stylesheet" href="/recipes.css" />
+    <style>
+      /* M3.1 implementation.md §4 Cluster 2: "Page body background must be
+         #E8E8E8 — no exceptions". Tailwind preflight resets html/body to white,
+         so we hard-set here. */
+      html, body { background: #E8E8E8; }
+      body { font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+    </style>
+  </head>
+  <body class="min-h-screen flex items-start justify-center py-10">
+
+    <!--
+      VALIDATION HERO #2 — Cluster 2 (Neumorphic Soft-Extrusion Mobile UI)
+
+      Built from M3.1's m31-prompts/implementation.md + asset-generation.md.
+      Did NOT look at source moodboard images.
+
+      implementation.md §4 Cluster 2 Layout Sketch (verbatim):
+        Mobile-width column 360–420px. Cards 320–380px wide, 160–220px tall,
+        border-radius: 20px. Single-column stacked, 20px vertical gap. Raised
+        disc/icon buttons 56×56px circles using neumorphic-raised. Progress/
+        input grooves 48px tall, full card width minus 32px padding, using
+        neumorphic-inset. Photographic flower cutout: top: -28px; right: 16px;
+        ~100px wide. Page body background must be #E8E8E8.
+
+      Layout decisions:
+        - Mobile frame 390px wide (iPhone-ish), within a body that's also #E8E8E8.
+        - Header strip (status icons + screen title) — flat, no shadow.
+        - Card 1: "Now Playing" track with peony cutout overflowing top-right.
+        - Card 2: "Today" wellness stats with 3 small neumorphic-raised discs.
+        - Card 3: "Up next" track preview with lavender sprig overflowing top-right.
+        - Bottom raised-disc transport controls in a fourth card.
+    -->
+
+    <main class="w-[390px] mx-auto">
+
+      <!-- Header — flat (Cluster 2 is anti-elevation outside the card discs) -->
+      <header class="flex items-center justify-between px-2 py-3 mb-6 text-[13px] text-neutral-500">
+        <span class="font-medium">9:41</span>
+        <span class="tracking-wide">stillness · sessions</span>
+        <span class="opacity-70">●●●●</span>
+      </header>
+
+      <!-- ── Card 1 · Now Playing ──────────────────────────────────────────── -->
+      <article class="vrec-neumorphiccard relative mb-5 px-6 py-5 h-[220px]">
+        <!-- photographic peony cutout, per layout sketch coords -->
+        <img
+          src="/assets/open-peony.png"
+          alt=""
+          class="absolute pointer-events-none"
+          style="top: -28px; right: 16px; width: 120px; height: auto;"
+          aria-hidden="true"
+        />
+        <div class="text-[11px] uppercase tracking-[0.18em] text-neutral-400 mb-2">now playing</div>
+        <h1 class="text-[20px] font-medium text-neutral-700 leading-snug max-w-[210px]">Floral Stillness</h1>
+        <p class="text-[13px] text-neutral-500 mt-1">Slow Bloom Sessions · 12 min</p>
+
+        <!-- inset progress groove + raised play disc, per layout sketch -->
+        <div class="mt-7">
+          <div class="vrec-neumorphicinset h-[12px] w-full mb-2 relative">
+            <div class="absolute left-0 top-0 h-full rounded-full"
+                 style="width: 38%; background: linear-gradient(90deg, #A8C9A4 0%, #88C4A0 100%);"></div>
+          </div>
+          <div class="flex items-center justify-between text-[11px] text-neutral-400 tabular-nums">
+            <span>4:32</span><span>12:00</span>
+          </div>
+        </div>
+
+        <!-- raised play disc, 56×56 -->
+        <button
+          aria-label="Pause"
+          class="vrec-neumorphiccard absolute"
+          style="width:56px; height:56px; border-radius:50%; bottom: 24px; right: 24px; background: #E8E8E8; padding: 0; border: 0; display:flex; align-items:center; justify-content:center;"
+        >
+          <span class="text-neutral-600" style="font-size: 18px; line-height: 1;">⏸</span>
+        </button>
+      </article>
+
+      <!-- ── Card 2 · Today wellness stats ─────────────────────────────────── -->
+      <article class="vrec-neumorphiccard mb-5 px-6 py-5">
+        <div class="flex items-baseline justify-between mb-4">
+          <div class="text-[11px] uppercase tracking-[0.18em] text-neutral-400">today</div>
+          <div class="text-[11px] text-neutral-400">tuesday</div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4">
+          <!-- mindful minutes -->
+          <div class="flex flex-col items-center">
+            <div class="vrec-neumorphiccard mb-2" style="width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center;">
+              <span class="text-[18px]" style="color: #88C4A0;">◐</span>
+            </div>
+            <div class="text-[16px] font-medium text-neutral-700 tabular-nums">28<span class="text-[11px] text-neutral-400">/45</span></div>
+            <div class="text-[10px] text-neutral-400 uppercase tracking-wider">mindful</div>
+          </div>
+          <!-- sleep -->
+          <div class="flex flex-col items-center">
+            <div class="vrec-neumorphiccard mb-2" style="width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center;">
+              <span class="text-[16px] text-neutral-500">☾</span>
+            </div>
+            <div class="text-[16px] font-medium text-neutral-700 tabular-nums">7h<span class="text-[11px] text-neutral-400">12m</span></div>
+            <div class="text-[10px] text-neutral-400 uppercase tracking-wider">sleep</div>
+          </div>
+          <!-- breath -->
+          <div class="flex flex-col items-center">
+            <div class="vrec-neumorphiccard mb-2" style="width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center;">
+              <span class="text-[18px] text-neutral-500">◉</span>
+            </div>
+            <div class="text-[16px] font-medium text-neutral-700 tabular-nums">12<span class="text-[11px] text-neutral-400">/15</span></div>
+            <div class="text-[10px] text-neutral-400 uppercase tracking-wider">breaths</div>
+          </div>
+        </div>
+
+        <!-- streak inset -->
+        <div class="mt-5">
+          <div class="text-[10px] uppercase tracking-[0.18em] text-neutral-400 mb-2">weekly streak</div>
+          <div class="vrec-neumorphicinset h-[10px] w-full relative">
+            <div class="absolute left-0 top-0 h-full rounded-full"
+                 style="width: 71%; background: #88C4A0;"></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- ── Card 3 · Up next ──────────────────────────────────────────────── -->
+      <article class="vrec-neumorphiccard relative mb-5 px-6 py-5 h-[170px]">
+        <img
+          src="/assets/lavender-sprig.png"
+          alt=""
+          class="absolute pointer-events-none"
+          style="top: -28px; right: 16px; width: 96px; height: auto;"
+          aria-hidden="true"
+        />
+        <div class="text-[11px] uppercase tracking-[0.18em] text-neutral-400 mb-2">up next</div>
+        <h2 class="text-[18px] font-medium text-neutral-700 leading-snug max-w-[200px]">Lavender Wind-Down</h2>
+        <p class="text-[13px] text-neutral-500 mt-1">Slow Bloom Sessions · 8 min</p>
+        <div class="absolute right-6 bottom-5 flex items-center gap-3 text-[11px] text-neutral-400">
+          <span>queue</span>
+          <button
+            aria-label="Play next"
+            class="vrec-neumorphiccard"
+            style="width:42px; height:42px; border-radius:50%; background:#E8E8E8; padding:0; border:0; display:flex; align-items:center; justify-content:center;"
+          >
+            <span class="text-neutral-500" style="font-size:13px; line-height:1;">▶</span>
+          </button>
+        </div>
+      </article>
+
+      <!-- ── Card 4 · Transport / nav ──────────────────────────────────────── -->
+      <article class="vrec-neumorphiccard px-6 py-4 flex items-center justify-between">
+        <button aria-label="Library" class="vrec-neumorphiccard" style="width:48px; height:48px; border-radius:50%; background:#E8E8E8; padding:0; border:0; display:flex; align-items:center; justify-content:center;">
+          <span class="text-neutral-500 text-[14px]">≡</span>
+        </button>
+        <button aria-label="Sessions" class="vrec-neumorphiccard" style="width:48px; height:48px; border-radius:50%; background:#E8E8E8; padding:0; border:0; display:flex; align-items:center; justify-content:center;">
+          <span style="color: #88C4A0; font-size: 16px;">◐</span>
+        </button>
+        <button aria-label="Profile" class="vrec-neumorphiccard" style="width:48px; height:48px; border-radius:50%; background:#E8E8E8; padding:0; border:0; display:flex; align-items:center; justify-content:center;">
+          <span class="text-neutral-500 text-[14px]">◯</span>
+        </button>
+      </article>
+
+    </main>
+
+  </body>
+</html>

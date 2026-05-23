@@ -1,0 +1,149 @@
+/* designlang-vision recipes.css
+ * styleThesis: Botanical Dimensional UI: Clay Diorama + Neumorphic + Editorial Commerce
+ * sourceCount: 10
+ * clusters: Matte Clay 3D Botanical Diorama UI / Neumorphic Soft-Extrusion Mobile UI / Editorial Botanical Commerce (Light Background) / Dark Forest-Green Botanical Product Showcase / Artisanal Flat Parchment Café UI
+ *
+ * @layer recipes-consensus  — rules that hold across all clusters
+ * @layer recipes-cluster-*  — cluster-scoped rules; import only the slugs you need
+ * @layer recipes-other      — recipes the synthesizer did not tag to a cluster
+ */
+
+@layer recipes-consensus, recipes-cluster-matte-clay-3d-botanical-diorama-ui, recipes-cluster-neumorphic-soft-extrusion-mobile-ui, recipes-cluster-editorial-botanical-commerce-light-background, recipes-cluster-dark-forest-green-botanical-product-showcase, recipes-cluster-artisanal-flat-parchment-cafe-ui, recipes-other;
+
+@layer recipes-consensus {
+  /* overflow: visible on card containers is required whenever botanical/food/floral elements break the card boundary — clipping destroys the primary depth signature
+   * 7 images explicitly list 'overflow: visible on parent container' as an implementation hint for boundary-breaking elements. This is the most repeated implementation rule across the moodboard.
+   * 7/10 imgs · conf 0.93
+   */
+  /* Never apply frosted glass / backdrop-filter blur — matte opacity is the universal material rule; translucency is an anti-pattern in every cluster
+   * 8 images list glassmorphism/frosted-glass as an explicit anti-pattern. This is the single most consistent anti-pattern across the entire moodboard.
+   * 8/10 imgs · conf 0.97
+   */
+  /* Absolutely-positioned PNG/SVG botanical cutouts with pointer-events: none for decorative overflow elements — consistent implementation pattern
+   * 6 images describe the same pattern: absolute positioning + overflow visible on parent + PNG cutout asset for boundary-breaking botanical elements.
+   * 6/10 imgs · conf 0.85
+   */
+}
+
+@layer recipes-cluster-matte-clay-3d-botanical-diorama-ui {
+  /* Matte Clay 3D Botanical Diorama UI */
+  /* Matte clay card panel — Cluster 1 (Diorama UI) — overflow: visible is mandatory for botanical overflow elements. No border, no backdrop-filter. */
+  .vrec-claycard {
+    background: #FAFAF8;
+    border-radius: 24px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.10);
+    overflow: visible;
+    position: relative;
+  }
+
+  /* Small stat/info tile — Cluster 1 */
+  .vrec-claytile {
+    background: #FFFFFF;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08), inset 0 -2px 4px rgba(0,0,0,0.04);
+    padding: 12px;
+  }
+
+  /* Pill CTA button — Cluster 1 */
+  .vrec-claypillbutton {
+    border-radius: 999px;
+    background: #88C4A0;
+    box-shadow: inset 0 -2px 4px rgba(0,0,0,0.08), 0 4px 10px rgba(0,0,0,0.10);
+    padding: 10px 24px;
+    color: #fff;
+    font-weight: 500;
+  }
+
+  /* Boundary-breaking botanical prop — Clusters 1, 3, 4 — Parent card must have overflow: visible. Asset is PNG/SVG cutout. */
+  .vrec-botanicaloverflow {
+    position: absolute;
+    overflow: visible;
+    z-index: 10;
+    pointer-events: none;
+    filter: drop-shadow(2px 6px 8px rgba(30,50,20,0.25));
+  }
+
+}
+
+@layer recipes-cluster-neumorphic-soft-extrusion-mobile-ui {
+  /* Neumorphic Soft-Extrusion Mobile UI */
+  /* Neumorphic raised card — Cluster 2 — Background color MUST match body background exactly. */
+  .vrec-neumorphiccard {
+    background: #E8E8E8;
+    border-radius: 20px;
+    box-shadow: -4px -4px 10px #ffffff, 4px 4px 10px rgba(0,0,0,0.12);
+  }
+
+  /* Recessed input/progress groove — Cluster 2 */
+  .vrec-neumorphicinset {
+    background: #E8E8E8;
+    border-radius: 999px;
+    box-shadow: inset 2px 2px 5px rgba(0,0,0,0.10), inset -2px -2px 5px #ffffff;
+  }
+
+}
+
+@layer recipes-cluster-editorial-botanical-commerce-light-background {
+  /* Editorial Botanical Commerce (Light Background) */
+  /* Boundary-breaking botanical prop — Clusters 1, 3, 4 — Parent card must have overflow: visible. Asset is PNG/SVG cutout. */
+  .vrec-botanicaloverflow {
+    position: absolute;
+    overflow: visible;
+    z-index: 10;
+    pointer-events: none;
+    filter: drop-shadow(2px 6px 8px rgba(30,50,20,0.25));
+  }
+
+  /* Flat white product card with photo overflow — Cluster 3 — Plant image: position: absolute; top: -24px; left: 50%; transform: translateX(-50%); */
+  .vrec-editorialproductcard {
+    background: #FFFFFF;
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    overflow: visible;
+    position: relative;
+  }
+
+}
+
+@layer recipes-cluster-dark-forest-green-botanical-product-showcase {
+  /* Dark Forest-Green Botanical Product Showcase */
+  /* Boundary-breaking botanical prop — Clusters 1, 3, 4 — Parent card must have overflow: visible. Asset is PNG/SVG cutout. */
+  .vrec-botanicaloverflow {
+    position: absolute;
+    overflow: visible;
+    z-index: 10;
+    pointer-events: none;
+    filter: drop-shadow(2px 6px 8px rgba(30,50,20,0.25));
+  }
+
+  /* Dark forest-green studio backdrop — Cluster 4 — No gradient, no texture. Depth comes entirely from 3D/photo objects with drop-shadow. */
+  .vrec-darkstudiosection {
+    background: #1A3D2B;
+    position: relative;
+    overflow: visible;
+  }
+
+  /* Product card on dark background — Cluster 4 */
+  .vrec-darkproductcard {
+    background: #2D5A3D;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    overflow: hidden;
+  }
+
+}
+
+@layer recipes-cluster-artisanal-flat-parchment-cafe-ui {
+  /* Artisanal Flat Parchment Café UI */
+  /* Flat matte olive-green CTA — Cluster 5 (Artisanal Café) — Zero elevation — anti-pattern to add box-shadow here. */
+  .vrec-parchmentcta {
+    background: #3D5A2E;
+    border-radius: 8px;
+    color: #FFFFFF;
+    font-weight: 500;
+    box-shadow: none;
+    border: none;
+  }
+
+}
+
