@@ -1,0 +1,432 @@
+<!doctype html>
+<!--
+  AFTER — pdx-gardener 首页 hero · Cluster 4 (Dark Forest-Green Botanical
+  Product Showcase) apply.
+  Real production data; user thumbnails hot-linked from pdxgardener.com.
+
+  Key constraints addressed:
+    (a) USER PHOTOS ON DARK BG — placed inside cream cards that "float" on
+        the dark forest surface; photos never touch the dark background
+        directly.
+    (b) COLOR SEMANTIC REMAP — tags get dark-bg-compatible variants while
+        keeping the original meaning (free=green, paid=warm-red, barter=
+        warm-yellow). Contrast targets WCAG AA on the cream card surface.
+    (c) BRAND-PROMISE TENSION — pdx-gardener is a community board, not
+        Aesop. To avoid full luxury-apothecary detachment, this apply
+        leans toward "Pacific NW forest at dusk" rather than "luxury
+        skincare lookbook" — slightly warmer green than pure Aesop charcoal,
+        and section heads are friendly bold sans (not all-caps gold).
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>菜友集市 · after C4 (dark forest showcase)</title>
+<style>
+:root {
+  /* Cluster 4 dark-forest palette */
+  --bg-page:        #163326;
+  --bg-page-2:      #1D4030;
+  --bg-card:        #F7F1E3;
+  --bg-card-deep:   #EDE5D2;
+  --ink-cream:      #F4EBD4;
+  --ink-cream-mute: #BFB390;
+  --gold:           #C9A75A;
+  --gold-soft:      #9F8240;
+
+  /* Card surface text */
+  --text-card:      #1F2620;
+  --text-card-sec:  #5A6258;
+  --text-card-mute: #8C928A;
+
+  /* Botanical accents (unchanged) */
+  --leaf-light:     #88C4A0;
+  --leaf-mid:       #4A7C59;
+
+  --radius-card: 14px;
+  --radius-pill: 9999px;
+  --radius-btn:  12px;
+
+  --fs-display: 28px;
+  --fs-lg:      18px;
+  --fs-md:      15px;
+  --fs-sm:      13px;
+  --fs-xs:      12px;
+
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:24px;
+
+  --font-zh: "PingFang SC", "Source Han Sans SC", -apple-system, sans-serif;
+  --font-en: "Inter", -apple-system, sans-serif;
+}
+
+/* Dark page with subtle vertical gradient (forest depth) */
+html, body {
+  font-family: var(--font-zh);
+  background: linear-gradient(180deg, var(--bg-page) 0%, var(--bg-page-2) 60%, var(--bg-page) 100%);
+  color: var(--ink-cream);
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  margin: 0;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.view {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: var(--sp-5) var(--sp-4) 80px;
+}
+
+/* ============================================================
+   Hero — cream H1 on dark, gold underline accent
+   ============================================================ */
+.hero {
+  margin-bottom: var(--sp-3);
+}
+.hero-eyebrow {
+  font-family: var(--font-en);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+.hero-title {
+  font-size: var(--fs-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  margin: 0;
+  color: var(--ink-cream);
+  display: inline-block;
+  border-bottom: 1px solid var(--gold-soft);
+  padding-bottom: 6px;
+}
+.hero-sub {
+  font-size: var(--fs-sm);
+  color: var(--ink-cream-mute);
+  line-height: 1.5;
+  margin: var(--sp-3) 0 var(--sp-4);
+}
+.hero-sub .pin {
+  color: var(--gold);
+  font-weight: 500;
+  text-decoration: none;
+  border-bottom: 1px dashed var(--gold-soft);
+  padding-bottom: 1px;
+}
+
+/* ============================================================
+   CTAs — cream-filled primary, ghost-outline secondary
+   ============================================================ */
+.cta-row {
+  display: flex;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-5);
+}
+.btn-cta {
+  flex: 1;
+  min-height: 48px;
+  padding: var(--sp-3) var(--sp-4);
+  border: none;
+  border-radius: var(--radius-btn);
+  font-family: var(--font-zh);
+  font-size: var(--fs-md);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+}
+.btn-cta-primary {
+  background: var(--ink-cream);
+  color: var(--bg-page);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.20);
+}
+.btn-cta-secondary {
+  background: transparent;
+  color: var(--ink-cream);
+  border: 1px solid var(--gold-soft);
+}
+
+/* ============================================================
+   Section head — gold eyebrow rule + cream title + gold count
+   ============================================================ */
+.section-head {
+  margin: var(--sp-5) 0 var(--sp-3);
+}
+.section-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.section-eyebrow::before,
+.section-eyebrow::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--gold-soft);
+  opacity: 0.5;
+}
+.section-eyebrow span {
+  font-family: var(--font-en);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+.section-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.section-title {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--ink-cream);
+  margin: 0;
+}
+.section-title .count {
+  font-family: var(--font-en);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gold);
+  letter-spacing: 0.05em;
+}
+.section-link {
+  font-size: var(--fs-sm);
+  color: var(--gold);
+  text-decoration: none;
+  font-weight: 500;
+  border-bottom: 1px dashed var(--gold-soft);
+  padding-bottom: 1px;
+}
+
+/* ============================================================
+   Card — cream surface floating on dark forest
+   This is the key move: user photos and text live ENTIRELY inside the
+   cream card; the dark background never touches user content.
+   ============================================================ */
+.card {
+  display: flex;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28),
+              0 1px 2px  rgba(0, 0, 0, 0.30);
+  margin-bottom: var(--sp-3);
+  position: relative;
+}
+.card-thumb {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: var(--bg-card-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.card-thumb .empty {
+  font-size: 24px;
+  color: var(--text-card-mute);
+  opacity: 0.7;
+}
+
+.card-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.card-name {
+  font-size: var(--fs-md);
+  font-weight: 600;
+  color: var(--text-card);
+  margin: 0 0 4px;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.card-meta {
+  font-size: var(--fs-xs);
+  color: var(--text-card-mute);
+  margin-bottom: var(--sp-2);
+}
+.card-meta .dot { opacity: 0.6; margin: 0 4px; }
+
+/* Tags — re-tuned for cream surface, dark-page-context aware
+   (still WCAG AA on cream bg) */
+.card-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  border-radius: 6px;
+}
+.tag-free   { background: #B8DCC2; color: #133A23; }
+.tag-paid   { background: #F2C3A8; color: #67301A; }
+.tag-barter { background: #E8D38A; color: #594118; }
+.tag-bring  { background: #DCD2BA; color: #5A5040; }
+
+/* View-all — gold outline ghost on dark */
+.view-all {
+  display: block;
+  width: 100%;
+  margin-top: var(--sp-3);
+  padding: 16px;
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid var(--gold-soft);
+  border-radius: var(--radius-btn);
+  font-family: var(--font-zh);
+  font-size: var(--fs-md);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.demo-annot {
+  margin-top: 48px;
+  padding-top: 16px;
+  border-top: 1px dashed rgba(201, 167, 90, 0.25);
+  font-size: 11px;
+  color: var(--ink-cream-mute);
+  line-height: 1.6;
+}
+.demo-annot strong { color: var(--gold); }
+.demo-annot code { color: var(--ink-cream); }
+</style>
+</head>
+<body>
+
+<div class="view">
+
+  <div class="hero">
+    <div class="hero-eyebrow">PDX · 周末菜友大会</div>
+    <h1 class="hero-title">菜友集市</h1>
+    <p class="hero-sub">
+      5 月 24 日 11:00–14:30 · 📍 <a class="pin">Tushita Farm</a>
+    </p>
+  </div>
+
+  <div class="cta-row">
+    <button class="btn-cta btn-cta-primary">🌾 我要出让</button>
+    <button class="btn-cta btn-cta-secondary">🌿 我想获得</button>
+  </div>
+
+  <!-- 供 -->
+  <div class="section-head">
+    <div class="section-eyebrow"><span>OFFER · 供</span></div>
+    <div class="section-row">
+      <h2 class="section-title">在让 <span class="count">73</span></h2>
+      <a class="section-link">查看全部 →</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-thumb"><img src="https://pdxgardener.com/api/media/470cab64cddd44829628e70a5a8e3785/thumb" alt="" /></div>
+    <div class="card-body">
+      <div class="card-name">红根菠菜</div>
+      <div class="card-meta">Fanding<span class="dot">·</span>剩余 30 株<span class="dot">·</span>3 小时前</div>
+      <div class="card-tags"><span class="tag tag-free">免费</span><span class="tag tag-bring">会带去</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-thumb"><span class="empty">🥬</span></div>
+    <div class="card-body">
+      <div class="card-name">Cherokee purple tomato · 大黑番茄苗</div>
+      <div class="card-meta">Echo<span class="dot">·</span>剩余 4 株<span class="dot">·</span>5 小时前</div>
+      <div class="card-tags"><span class="tag tag-free">免费</span><span class="tag tag-bring">会带去</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-thumb"><img src="https://pdxgardener.com/api/media/6fc4714686aa46ea823d56e4599ff558/thumb" alt="" /></div>
+    <div class="card-body">
+      <div class="card-name">短叶十三号早萝卜</div>
+      <div class="card-meta">乐乐<span class="dot">·</span>剩余 8 株<span class="dot">·</span>5 小时前</div>
+      <div class="card-tags"><span class="tag tag-free">免费</span><span class="tag tag-bring">会带去</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-thumb"><img src="https://pdxgardener.com/api/media/3e4d0a17dddc4748b59a1fa123a478c0/thumb" alt="" /></div>
+    <div class="card-body">
+      <div class="card-name">特大萝卜</div>
+      <div class="card-meta">乐乐<span class="dot">·</span>剩余 4 株<span class="dot">·</span>5 小时前</div>
+      <div class="card-tags"><span class="tag tag-free">免费</span><span class="tag tag-bring">会带去</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-thumb"><img src="https://pdxgardener.com/api/media/0d4f4b8a3bb14821a90fce8a51e8e7ab/thumb" alt="" /></div>
+    <div class="card-body">
+      <div class="card-name">贵妃南瓜 · pack of 6</div>
+      <div class="card-meta">李大草<span class="dot">·</span>剩余 6 株<span class="dot">·</span>昨天</div>
+      <div class="card-tags"><span class="tag tag-paid">$2/株</span><span class="tag tag-bring">会带去</span></div>
+    </div>
+  </div>
+
+  <!-- 求 -->
+  <div class="section-head">
+    <div class="section-eyebrow"><span>WANT · 求</span></div>
+    <div class="section-row">
+      <h2 class="section-title">在求 <span class="count">3</span></h2>
+      <a class="section-link">查看全部 →</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-thumb"><span class="empty">📋</span></div>
+    <div class="card-body">
+      <div class="card-name">寻 · 韭菜根 / 韭菜籽</div>
+      <div class="card-meta">小赵<span class="dot">·</span>需 1 把<span class="dot">·</span>1 小时前</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-thumb"><span class="empty">🌱</span></div>
+    <div class="card-body">
+      <div class="card-name">寻 · 紫苏苗（赤紫色）</div>
+      <div class="card-meta">阿宁<span class="dot">·</span>需 2 株<span class="dot">·</span>4 小时前</div>
+    </div>
+  </div>
+
+  <a class="view-all">🛒 查看全部集市</a>
+
+  <div class="demo-annot">
+    <strong>Demo notes (would not ship in production):</strong><br>
+    • Cluster 4 (Dark Forest-Green Botanical Product Showcase) chrome applied to pdx-gardener.<br>
+    • <strong>User-content protection strategy</strong>: dark forest page surface NEVER touches user content directly. User photos + product names + owner names all live inside cream cards floating on the dark surface. This is the structural answer to "how do user-uploaded photos survive a dark-mode app".<br>
+    • <strong>Color semantic remap</strong>: free/paid/barter tag colors retuned for cream-card surface (not page) so they stay readable while preserving semantic meaning (free=green, paid=warm-red, barter=warm-yellow). All ≥ WCAG AA contrast.<br>
+    • Gold (<code>#C9A75A</code>) used sparingly as accent: eyebrow uppercase Latin, dividers, section count, link borders. Editorial discipline: max one gold accent per visual chunk.<br>
+    • Brand-promise tension acknowledged: this language pulls pdx-gardener away from "neighborhood Saturday community board" toward "Pacific NW forest at dusk / botanical curated showcase". The community-board owner should decide whether that elevation is desirable.<br>
+    • Risks: (1) elderly-user readability of cream-on-dark page chrome may decrease vs current; (2) emoji icons (🥬/📋/🌱) feel cheap against gold-rule editorial chrome — would need custom monoline botanical icons in a real ship.<br>
+    • Layout invariants preserved: ≥44×44 touch targets, flex-row 80×80 thumb cards, color-semantic tags, section ordering.
+  </div>
+
+</div>
+
+</body>
+</html>

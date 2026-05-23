@@ -1,0 +1,416 @@
+<!doctype html>
+<!--
+  AFTER — pdx-gardener 首页 hero · Cluster 2 (Neumorphic Soft-Extrusion) apply.
+  Real production data; user thumbnails hot-linked from pdxgardener.com.
+  SURGICAL application: full-screen neumorphic is a known accessibility risk
+  (low contrast, "what is clickable" problem), so neumorphic styling lands
+  only on (a) primary CTAs (raised pill, press-down on :active), (b) count
+  badges, (c) thumb wells (inset shadow), (d) bottom view-all bar.
+  Cards, body text, and surrounding chrome remain in pdx-gardener's existing
+  warmth-cream-flat language to keep content legible. See findings.md for
+  the rationale: "surgical not total".
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>菜友集市 · after C2 (neumorphic surgical)</title>
+<style>
+:root {
+  /* Neumorphic-friendly warm neutral background — close enough to original
+     pdx-gardener warmth that flat cards still feel native, but light/cool
+     enough that dual shadow on CTAs reads. */
+  --bg-page:          #E8E4D9;
+  --bg-card:          #F4F0E6;
+  --bg-card-deep:     #DCD8CC;  /* used inside inset wells */
+
+  /* Cluster 2 neumorphic shadow vocabulary */
+  --shadow-raised:    -4px -4px 10px rgba(255, 255, 255, 0.85),
+                       4px  4px 10px rgba(160, 145, 110, 0.30);
+  --shadow-raised-sm: -2px -2px 5px rgba(255, 255, 255, 0.80),
+                       2px  2px 5px rgba(160, 145, 110, 0.25);
+  --shadow-inset:     inset -3px -3px 6px rgba(255, 255, 255, 0.60),
+                      inset  3px  3px 6px rgba(160, 145, 110, 0.22);
+  --shadow-pressed:   inset -2px -2px 4px rgba(255, 255, 255, 0.55),
+                      inset  3px  3px 6px rgba(120, 105, 75, 0.28);
+
+  /* Botanical green palette (consistent across all 5 applies) */
+  --green-deep:       #1A3D2B;
+  --green-mid:        #4A7C59;
+  --green-light:      #88C4A0;
+  --green-soft:       #D8F3DC;
+  --peach:            #E89868;
+
+  --text:             #2D3030;
+  --text-secondary:   #5F6862;
+  --text-muted:       #8A938C;
+
+  --radius-card:      14px;
+  --radius-pill:      9999px;
+  --radius-btn:       16px;
+
+  --fs-display: 26px;
+  --fs-lg:      18px;
+  --fs-md:      15px;
+  --fs-sm:      13px;
+  --fs-xs:      12px;
+
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:24px;
+
+  --font-zh: "PingFang SC", "Source Han Sans SC", -apple-system, sans-serif;
+}
+
+html, body {
+  font-family: var(--font-zh);
+  background: var(--bg-page);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+.view {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: var(--sp-4) var(--sp-4) 80px;
+}
+
+/* ============================================================
+   Hero
+   - H1 plain (NO embossed text — that hurts readability)
+   - subtle accent: small neumorphic "leaf" pill icon as a brand mark
+   ============================================================ */
+.hero {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-3);
+}
+.brand-mark {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--bg-page);
+  box-shadow: var(--shadow-raised);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+.hero-title {
+  font-size: var(--fs-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  margin: 0;
+  color: var(--text);
+}
+.hero-sub {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: var(--sp-4);
+}
+.hero-sub .pin {
+  color: var(--green-deep);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+/* ============================================================
+   CTAs — raised neumorphic pills; press-down on :active
+   ============================================================ */
+.cta-row {
+  display: flex;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-5);
+}
+.btn-cta {
+  flex: 1;
+  min-height: 52px;
+  padding: var(--sp-3) var(--sp-4);
+  border: none;
+  border-radius: var(--radius-btn);
+  background: var(--bg-page);  /* same as surrounding — pure neumorphic */
+  color: var(--green-deep);
+  font-family: var(--font-zh);
+  font-size: var(--fs-md);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: var(--shadow-raised);
+  transition: box-shadow 120ms ease;
+}
+.btn-cta:active {
+  box-shadow: var(--shadow-pressed);
+}
+.btn-cta-primary {
+  background: var(--green-deep);
+  color: #F4F0E6;
+  /* Override neumorphic shadow on filled CTA — light side disappears
+     against dark fill; use single elevated shadow instead */
+  box-shadow:  4px 4px 10px rgba(120, 105, 75, 0.30),
+              inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+.btn-cta-primary:active {
+  box-shadow: 2px 2px 5px rgba(120, 105, 75, 0.20),
+              inset 0 2px 4px rgba(0, 0, 0, 0.22);
+  transform: translateY(1px);
+}
+
+/* ============================================================
+   Section head — count badge is neumorphic pill
+   ============================================================ */
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: var(--sp-5) 0 var(--sp-3);
+}
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+.count {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--green-deep);
+  background: var(--bg-page);
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-raised-sm);
+  letter-spacing: 0;
+  min-width: 24px;
+  text-align: center;
+}
+.count.want { color: #A04D3A; }
+.section-link {
+  font-size: var(--fs-sm);
+  color: var(--green-mid);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-page);
+  box-shadow: var(--shadow-raised-sm);
+}
+
+/* ============================================================
+   Card — FLAT cream card (NOT neumorphic), wraps the legible content.
+   Only the thumb-well inside is neumorphic-inset, holding the photo
+   like a soft tray.
+   ============================================================ */
+.card {
+  display: flex;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
+  box-shadow: 0 1px 2px rgba(120, 105, 75, 0.08);
+  margin-bottom: var(--sp-3);
+}
+.card-thumb {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: var(--bg-card-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: var(--shadow-inset);
+  padding: 3px;  /* lets the inset shadow visually surround the photo */
+}
+.card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 9px;
+}
+.card-thumb .empty {
+  font-size: 24px;
+  color: var(--text-muted);
+  opacity: 0.55;
+}
+.card-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.card-name {
+  font-size: var(--fs-md);
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 4px;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.card-meta {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  margin-bottom: var(--sp-2);
+}
+.card-meta .dot { opacity: 0.6; margin: 0 4px; }
+.card-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  border-radius: 6px;
+}
+.tag-free   { background: #D8F3DC; color: #1B4332; }
+.tag-paid   { background: #FCE4D9; color: #A04D3A; }
+.tag-barter { background: #FCEEC3; color: #8A6A1E; }
+.tag-bring  { background: var(--bg-card-deep); color: var(--text-secondary); }
+
+/* View-all */
+.view-all {
+  display: block;
+  width: 100%;
+  margin-top: var(--sp-3);
+  padding: 16px;
+  background: var(--bg-page);
+  color: var(--green-deep);
+  border: none;
+  border-radius: var(--radius-btn);
+  font-family: var(--font-zh);
+  font-size: var(--fs-md);
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: var(--shadow-raised);
+  cursor: pointer;
+}
+
+.demo-annot {
+  margin-top: 48px;
+  padding-top: 16px;
+  border-top: 1px dashed rgba(120, 105, 75, 0.3);
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+.demo-annot strong { color: var(--text-secondary); }
+</style>
+</head>
+<body>
+
+<div class="view">
+
+  <div class="hero">
+    <div class="brand-mark">🌿</div>
+    <h1 class="hero-title">菜友集市</h1>
+  </div>
+  <p class="hero-sub">
+    周末菜友大会 · 5 月 24 日 11:00–14:30 · 📍 <a class="pin">Tushita Farm</a>
+  </p>
+
+  <div class="cta-row">
+    <button class="btn-cta btn-cta-primary">🌾 我要出让</button>
+    <button class="btn-cta">🌿 我想获得</button>
+  </div>
+
+  <!-- 供 -->
+  <div class="section-head">
+    <h2 class="section-title">供 <span class="count">73</span></h2>
+    <a class="section-link">查看全部</a>
+  </div>
+
+  <div class="card">
+    <div class="card-thumb"><img src="https://pdxgardener.com/api/media/470cab64cddd44829628e70a5a8e3785/thumb" alt="" /></div>
+    <div class="card-body">
+      <div class="card-name">红根菠菜</div>
+      <div class="card-meta">Fanding<span class="dot">·</span>剩余 30 株<span class="dot">·</span>3 小时前</div>
+      <div class="card-tags"><span class="tag tag-free">免费</span><span class="tag tag-bring">会带去</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-thumb"><span class="empty">🥬</span></div>
+    <div class="card-body">
+      <div class="card-name">Cherokee purple tomato · 大黑番茄苗</div>
+      <div class="card-meta">Echo<span class="dot">·</span>剩余 4 株<span class="dot">·</span>5 小时前</div>
+      <div class="card-tags"><span class="tag tag-free">免费</span><span class="tag tag-bring">会带去</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-thumb"><img src="https://pdxgardener.com/api/media/6fc4714686aa46ea823d56e4599ff558/thumb" alt="" /></div>
+    <div class="card-body">
+      <div class="card-name">短叶十三号早萝卜</div>
+      <div class="card-meta">乐乐<span class="dot">·</span>剩余 8 株<span class="dot">·</span>5 小时前</div>
+      <div class="card-tags"><span class="tag tag-free">免费</span><span class="tag tag-bring">会带去</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-thumb"><img src="https://pdxgardener.com/api/media/3e4d0a17dddc4748b59a1fa123a478c0/thumb" alt="" /></div>
+    <div class="card-body">
+      <div class="card-name">特大萝卜</div>
+      <div class="card-meta">乐乐<span class="dot">·</span>剩余 4 株<span class="dot">·</span>5 小时前</div>
+      <div class="card-tags"><span class="tag tag-free">免费</span><span class="tag tag-bring">会带去</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-thumb"><img src="https://pdxgardener.com/api/media/0d4f4b8a3bb14821a90fce8a51e8e7ab/thumb" alt="" /></div>
+    <div class="card-body">
+      <div class="card-name">贵妃南瓜 · pack of 6</div>
+      <div class="card-meta">李大草<span class="dot">·</span>剩余 6 株<span class="dot">·</span>昨天</div>
+      <div class="card-tags"><span class="tag tag-paid">$2/株</span><span class="tag tag-bring">会带去</span></div>
+    </div>
+  </div>
+
+  <!-- 求 -->
+  <div class="section-head">
+    <h2 class="section-title">求 <span class="count want">3</span></h2>
+    <a class="section-link">查看全部</a>
+  </div>
+
+  <div class="card">
+    <div class="card-thumb"><span class="empty">📋</span></div>
+    <div class="card-body">
+      <div class="card-name">寻 · 韭菜根 / 韭菜籽</div>
+      <div class="card-meta">小赵<span class="dot">·</span>需 1 把<span class="dot">·</span>1 小时前</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-thumb"><span class="empty">🌱</span></div>
+    <div class="card-body">
+      <div class="card-name">寻 · 紫苏苗（赤紫色）</div>
+      <div class="card-meta">阿宁<span class="dot">·</span>需 2 株<span class="dot">·</span>4 小时前</div>
+    </div>
+  </div>
+
+  <a class="view-all">🛒 查看全部集市</a>
+
+  <div class="demo-annot">
+    <strong>Demo notes (would not ship in production):</strong><br>
+    • Cluster 2 (Neumorphic Soft-Extrusion) chrome applied to pdx-gardener — <em>surgically</em>, not totally.<br>
+    • Neumorphic styling lands only on: (1) primary/secondary CTAs as raised pills, (2) count badges, (3) "查看全部" pill, (4) thumb wells as inset trays, (5) bottom view-all bar. Cards themselves stay flat-with-warm-cream so card body text remains legible.<br>
+    • Real production data; user photos untouched.<br>
+    • Background shifted to <code>#E8E4D9</code> warm-neutral so dual shadow (light from upper-left + dark from lower-right) reads.<br>
+    • Primary CTA stays filled dark-green (NOT pure neumorphic) — pure neumorphic on a dark fill loses the light side of the shadow and becomes a flat blob. This is a known constraint of neumorphic on filled buttons.<br>
+    • Accessibility cost vs Cluster 1: secondary "我想获得" button has lower affordance than C1's chunky 3D button; press state must visibly change to compensate.<br>
+    • Layout invariants preserved: ≥44×44 touch targets, flex-row 80×80 thumb cards, color-semantic tags, section ordering.
+  </div>
+
+</div>
+
+</body>
+</html>

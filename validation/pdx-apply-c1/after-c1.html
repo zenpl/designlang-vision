@@ -1,0 +1,472 @@
+<!doctype html>
+<!--
+  AFTER — pdx-gardener 首页 hero · Cluster 1 (Matte Clay 3D Botanical Diorama) apply.
+  Real production data from /api/market and /api/wants (snapshots in this dir).
+  Real user-uploaded thumbnails hot-linked from pdxgardener.com/api/media/{id}/thumb.
+  Polymer-clay AI assets used ONLY as chrome decoration (section heads, empty states).
+  Discipline correction from pdx-apply-c3 failure (see findings.md).
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>菜友集市 · after C1 (polymer clay diorama)</title>
+<style>
+/* ============================================================
+   Cluster 1 design tokens (from validation/cluster1-hero/design-tokens.json)
+   Tuned slightly toward pdx-gardener's current warmth.
+   ============================================================ */
+:root {
+  /* Cluster 1 botanical palette */
+  --c1-green-deep:    #1A3D2B;
+  --c1-green-mid:     #4A7C59;
+  --c1-green-light:   #88C4A0;
+  --c1-green-soft:    #D8F3DC;
+  --c1-peach:         #F4A070;
+  --c1-terracotta:    #C77152;
+
+  /* Warm paper background (Cluster 1 + pdx-gardener intersection) */
+  --bg-page:          #F4EFE5;
+  --bg-card:          #FDFAF6;
+  --bg-card-pressed:  #F7F2E8;
+
+  /* Text */
+  --text:             #2A2E2A;
+  --text-secondary:   #5C6660;
+  --text-muted:       #8A938F;
+
+  /* Cluster 1 signature: soft pillowy dual shadow (clay diorama lighting) */
+  --shadow-clay:      0 4px 14px rgba(60, 45, 25, 0.08),
+                      0 1px 3px  rgba(60, 45, 25, 0.05);
+  --shadow-clay-lift: 0 8px 22px rgba(60, 45, 25, 0.10),
+                      0 2px 5px  rgba(60, 45, 25, 0.06);
+  --shadow-btn:       0 3px 0   rgba(26, 61, 43, 0.16),
+                      0 6px 14px rgba(26, 61, 43, 0.18);
+  --shadow-inset:     inset 0 1px 0 rgba(255, 255, 255, 0.55),
+                      inset 0 -2px 4px rgba(60, 45, 25, 0.04);
+
+  --radius-card:      16px;
+  --radius-btn:       14px;
+  --radius-tag:       8px;
+
+  --fs-display:       28px;   /* H1 — friendly sans bold, NOT display serif */
+  --fs-lg:            18px;
+  --fs-md:            15px;
+  --fs-sm:            13px;
+  --fs-xs:            12px;
+
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:24px;
+
+  --font-zh: "PingFang SC", "Source Han Sans SC", "Noto Sans SC", -apple-system, sans-serif;
+  --font-en: "Inter", -apple-system, "SF Pro Text", sans-serif;
+}
+
+html, body {
+  font-family: var(--font-zh);
+  background: var(--bg-page);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+.view {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: var(--sp-4) var(--sp-4) 80px;
+}
+
+/* ============================================================
+   Hero — H1 stays friendly sans (NOT serif display).
+   ONE polymer-clay accent: small clay tomato/pot to the LEFT.
+   ============================================================ */
+.hero {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-3);
+}
+.hero-clay-icon {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  object-fit: contain;
+  /* No filter — let the clay material breathe */
+  filter: drop-shadow(0 4px 6px rgba(60, 45, 25, 0.18));
+}
+.hero-title {
+  font-size: var(--fs-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  margin: 0;
+  color: var(--text);
+}
+
+.hero-sub {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: var(--sp-4);
+}
+.hero-sub .pin {
+  color: var(--c1-green-deep);
+  font-weight: 500;
+  border-bottom: 1px dashed var(--c1-green-mid);
+  padding-bottom: 1px;
+  text-decoration: none;
+}
+
+/* ============================================================
+   CTAs — chunky clay buttons with stacked shadow (3D-extrusion feel)
+   ============================================================ */
+.cta-row {
+  display: flex;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-5);
+}
+.btn-cta {
+  flex: 1;
+  min-height: 48px;
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius-btn);
+  border: none;
+  background: var(--c1-green-deep);
+  color: #FAF6EE;
+  font-family: var(--font-zh);
+  font-size: var(--fs-md);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: var(--shadow-btn), var(--shadow-inset);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.btn-cta:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(26,61,43,0.16),
+              0 2px 6px rgba(26,61,43,0.14),
+              var(--shadow-inset);
+}
+.btn-cta-soft {
+  background: var(--c1-peach);
+  color: #4A2818;
+  box-shadow: 0 3px 0 rgba(180, 90, 40, 0.18),
+              0 6px 14px rgba(180, 90, 40, 0.18),
+              var(--shadow-inset);
+}
+
+/* ============================================================
+   Section head — small clay-leaf icon to the LEFT of the title.
+   ONE accent. Owner names stay plain sans.
+   ============================================================ */
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: var(--sp-5) 0 var(--sp-3);
+}
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+.section-title .clay-mini {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 3px rgba(60, 45, 25, 0.15));
+}
+.section-title .count {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--c1-green-deep);
+  background: var(--c1-green-soft);
+  padding: 3px 8px;
+  border-radius: 9999px;
+  margin-left: 2px;
+  letter-spacing: 0;
+}
+.section-link {
+  font-size: var(--fs-sm);
+  color: var(--c1-green-mid);
+  text-decoration: none;
+  font-weight: 500;
+  border-bottom: 1px dashed var(--c1-green-light);
+  padding-bottom: 1px;
+}
+
+/* ============================================================
+   Card — pillowy dual shadow + warm cream bg + soft inner highlight
+   Layout copies pdx-gardener's flex row (80×80 thumb + body) verbatim.
+   ============================================================ */
+.card {
+  display: flex;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-clay);
+  margin-bottom: var(--sp-3);
+  position: relative;
+}
+.card-thumb {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: var(--bg-card-pressed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: var(--shadow-inset);
+}
+.card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* Empty-state thumb: use clay decoration instead of generic emoji */
+.card-thumb .clay-empty {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  opacity: 0.85;
+  filter: drop-shadow(0 2px 3px rgba(60, 45, 25, 0.12));
+}
+
+.card-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.card-name {
+  font-size: var(--fs-md);
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 4px;
+  line-height: 1.35;
+  /* truncate after 2 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.card-meta {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  margin-bottom: var(--sp-2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.card-meta .dot { color: var(--text-muted); opacity: 0.6; }
+
+.card-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  border-radius: var(--radius-tag);
+  letter-spacing: 0;
+}
+.tag-free   { background: #D8F3DC; color: #1B4332; }
+.tag-paid   { background: #FCE4D9; color: #A04D3A; }
+.tag-barter { background: #FCEEC3; color: #8A6A1E; }
+.tag-bring  { background: #F0EBE0; color: #5C6660; }
+
+/* View-all button */
+.view-all {
+  display: block;
+  width: 100%;
+  margin-top: var(--sp-3);
+  padding: 14px;
+  background: var(--bg-card);
+  color: var(--c1-green-deep);
+  border: 1px solid #E1D9C7;
+  border-radius: var(--radius-btn);
+  font-family: var(--font-zh);
+  font-size: var(--fs-md);
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: var(--shadow-clay);
+  cursor: pointer;
+}
+
+/* Demo annotation — would not ship */
+.demo-annot {
+  margin-top: 48px;
+  padding-top: 16px;
+  border-top: 1px dashed #D6CFC0;
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+.demo-annot strong { color: var(--text-secondary); }
+</style>
+</head>
+<body>
+
+<div class="view">
+
+  <!-- Hero: one polymer-clay accent (pot), sans H1 (NOT display serif) -->
+  <div class="hero">
+    <img class="hero-clay-icon" src="./assets/clay-pot.png" alt="" />
+    <h1 class="hero-title">菜友集市</h1>
+  </div>
+  <p class="hero-sub">
+    周末菜友大会 · 5 月 24 日 11:00–14:30 · 📍 <a class="pin">Tushita Farm</a>
+  </p>
+
+  <!-- CTAs: chunky clay buttons -->
+  <div class="cta-row">
+    <button class="btn-cta">🌾 我要出让</button>
+    <button class="btn-cta btn-cta-soft">🌿 我想获得</button>
+  </div>
+
+  <!-- 供 section -->
+  <div class="section-head">
+    <h2 class="section-title">
+      <img class="clay-mini" src="./assets/clay-leaf.png" alt="" />
+      供 <span class="count">73</span>
+    </h2>
+    <a class="section-link">查看全部 →</a>
+  </div>
+
+  <!-- Real production data from market-snapshot.json (top 6 active items) -->
+
+  <!-- 1. 红根菠菜 — real user photo -->
+  <div class="card">
+    <div class="card-thumb">
+      <img src="https://pdxgardener.com/api/media/470cab64cddd44829628e70a5a8e3785/thumb" alt="" />
+    </div>
+    <div class="card-body">
+      <div class="card-name">红根菠菜</div>
+      <div class="card-meta">Fanding<span class="dot">·</span>剩余 30 株<span class="dot">·</span>3 小时前</div>
+      <div class="card-tags">
+        <span class="tag tag-free">免费</span>
+        <span class="tag tag-bring">会带去</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Cherokee purple tomato — empty state, clay decoration replaces emoji -->
+  <div class="card">
+    <div class="card-thumb">
+      <img class="clay-empty" src="./assets/clay-frond.png" alt="" />
+    </div>
+    <div class="card-body">
+      <div class="card-name">Cherokee purple tomato · 大黑番茄苗</div>
+      <div class="card-meta">Echo<span class="dot">·</span>剩余 4 株<span class="dot">·</span>5 小时前</div>
+      <div class="card-tags">
+        <span class="tag tag-free">免费</span>
+        <span class="tag tag-bring">会带去</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 短叶十三号早萝卜 — real user photo -->
+  <div class="card">
+    <div class="card-thumb">
+      <img src="https://pdxgardener.com/api/media/6fc4714686aa46ea823d56e4599ff558/thumb" alt="" />
+    </div>
+    <div class="card-body">
+      <div class="card-name">短叶十三号早萝卜</div>
+      <div class="card-meta">乐乐<span class="dot">·</span>剩余 8 株<span class="dot">·</span>5 小时前</div>
+      <div class="card-tags">
+        <span class="tag tag-free">免费</span>
+        <span class="tag tag-bring">会带去</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. 特大萝卜 — real user photo -->
+  <div class="card">
+    <div class="card-thumb">
+      <img src="https://pdxgardener.com/api/media/3e4d0a17dddc4748b59a1fa123a478c0/thumb" alt="" />
+    </div>
+    <div class="card-body">
+      <div class="card-name">特大萝卜</div>
+      <div class="card-meta">乐乐<span class="dot">·</span>剩余 4 株<span class="dot">·</span>5 小时前</div>
+      <div class="card-tags">
+        <span class="tag tag-free">免费</span>
+        <span class="tag tag-bring">会带去</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. 贵妃南瓜 — real user photo -->
+  <div class="card">
+    <div class="card-thumb">
+      <img src="https://pdxgardener.com/api/media/0d4f4b8a3bb14821a90fce8a51e8e7ab/thumb" alt="" />
+    </div>
+    <div class="card-body">
+      <div class="card-name">贵妃南瓜 · pack of 6</div>
+      <div class="card-meta">李大草<span class="dot">·</span>剩余 6 株<span class="dot">·</span>昨天</div>
+      <div class="card-tags">
+        <span class="tag tag-paid">$2/株</span>
+        <span class="tag tag-bring">会带去</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 求 section -->
+  <div class="section-head">
+    <h2 class="section-title">
+      <img class="clay-mini" src="./assets/clay-leaf.png" alt="" style="transform: scaleX(-1);" />
+      求 <span class="count" style="background:#FCE4D9;color:#A04D3A;">3</span>
+    </h2>
+    <a class="section-link">查看全部 →</a>
+  </div>
+
+  <!-- Real wants data (empty-state clay decoration for all want cards since wants rarely have photos) -->
+  <div class="card">
+    <div class="card-thumb">
+      <img class="clay-empty" src="./assets/clay-frond.png" alt="" style="transform: rotate(-15deg);" />
+    </div>
+    <div class="card-body">
+      <div class="card-name">寻 · 韭菜根 / 韭菜籽</div>
+      <div class="card-meta">小赵<span class="dot">·</span>需 1 把<span class="dot">·</span>1 小时前</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-thumb">
+      <img class="clay-empty" src="./assets/clay-frond.png" alt="" style="transform: rotate(20deg) scaleX(-1);" />
+    </div>
+    <div class="card-body">
+      <div class="card-name">寻 · 紫苏苗（赤紫色）</div>
+      <div class="card-meta">阿宁<span class="dot">·</span>需 2 株<span class="dot">·</span>4 小时前</div>
+    </div>
+  </div>
+
+  <a class="view-all">🛒 查看全部集市</a>
+
+  <div class="demo-annot">
+    <strong>Demo notes (would not ship in production):</strong><br>
+    • Cluster 1 (Matte Clay 3D Botanical Diorama) chrome applied to pdx-gardener.<br>
+    • Real production data from <code>/api/market</code> + <code>/api/wants</code>; user photos hot-linked from <code>pdxgardener.com/api/media/&lt;id&gt;/thumb</code>.<br>
+    • Polymer-clay assets used as <em>chrome decoration only</em>: hero icon (1×), section head icons (2×), empty-state thumb substitute (when user has no uploaded photo).<br>
+    • User-uploaded photos completely untouched: no filter, no overlay, no AI replacement.<br>
+    • Discipline correction from <code>pdx-apply-c3</code>: H1 stays sans (not display serif); cards stay warm cream (not clinical white); owner names stay plain sans (not 楷体 exoticization); zero italic festival.<br>
+    • Layout invariants preserved: ≥44×44 touch targets, flex-row 80×80 thumb cards, color-semantic tags (free/paid/barter), section ordering.
+  </div>
+
+</div>
+
+</body>
+</html>
