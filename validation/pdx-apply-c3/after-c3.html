@@ -1,0 +1,407 @@
+<!doctype html>
+<!--
+  AFTER (Cluster 3 · 激进字体版) — 种子集市 (pdx-gardener) 首页 hero with REAL data.
+
+  Difference from validation/pdx-apply-c5:
+  - Cluster 3 visual language (editorial commerce, near-invisible card shadow,
+    photographic plant cutouts, deep forest-green CTA, mixed serif/sans hierarchy)
+  - Real user data fetched from https://pdxgardener.com/api/market (8 items)
+    and /api/wants (4 items). Thumbnails hot-linked from production media CDN.
+  - AGGRESSIVE typography: LXGW XinJin Song (霞鹜新晋宋, real editorial serif),
+    LXGW WenKai (霞鹜文楷, modern 楷体), Fraunces Italic (Latin editorial accent),
+    PingFang SC body. Web fonts via jsDelivr CDN.
+  - English italic Latin secondary line at H1 (magazine feel)
+  - 字重 contrast aggressively widened: H1 700 / sub 400 / accent italic 500
+
+  HTML structure mirrors frontend/index.html:353-371 of pdx-gardener.
+  Layout, touch targets, color semantics — preserved per UX-locked constraint.
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>菜友集市 · after (Cluster 3, aggressive type)</title>
+
+<!-- ── Web fonts ─────────────────────────────────────────────────────────── -->
+<!-- LXGW XinJin Song (霞鹜新晋宋) — modern editorial serif. via jsDelivr -->
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<style>
+  @font-face {
+    font-family: "LXGW XinJin Song";
+    src: url("https://cdn.jsdelivr.net/gh/lxgw/lxgwxinjinsong@1.140/lxgwxinjinsong.woff2") format("woff2");
+    font-weight: 400 700; font-display: swap;
+  }
+  @font-face {
+    font-family: "LXGW WenKai";
+    src: url("https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.6.0/lxgwwenkai-regular.woff2") format("woff2");
+    font-weight: 400; font-display: swap;
+  }
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,500&display=swap">
+
+<style>
+/* === pdx-gardener current CSS (verbatim from index.html, unchanged) === */
+:root {
+  --primary:#2D6A4F;
+  --primary-deep:#1B4332;
+  --primary-soft:#D8F3DC;
+  --primary-light:#95D5B2;
+  --bg-page:#F5F0EB;
+  --bg-card:#FDFAF7;
+  --bg-soft:#FAF7F2;
+  --text:#2D3436;
+  --text-secondary:#636E72;
+  --text-body:#555B5A;
+  --muted:#636E72;
+  --shadow-1:0 2px 8px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.06);
+  --radius-card:12px;
+  --radius-btn:10px;
+  --radius-tag:6px;
+  --radius-pill:9999px;
+  --fs-xs:12px;
+  --fs-sm:14px;
+  --fs-md:16px;
+  --fs-lg:18px;
+  --fs-display:28px;
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:24px;
+}
+html,body{font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif;background:var(--bg-page);color:var(--text);font-size:var(--fs-sm);line-height:1.55;min-height:100vh;overflow-x:hidden;margin:0}
+.view{padding:var(--sp-4);max-width:420px;margin:0 auto;padding-bottom:80px}
+.muted{color:var(--text-secondary);font-size:var(--fs-xs);line-height:1.5}
+.link{color:var(--primary);cursor:pointer;text-decoration:none;border-bottom:1px dashed var(--primary);padding-bottom:1px}
+button,.btn{display:inline-flex;align-items:center;justify-content:center;padding:var(--sp-3) var(--sp-5);border:none;border-radius:var(--radius-btn);background:var(--primary);color:#fff;font-size:var(--fs-sm);font-weight:500;cursor:pointer;min-height:44px}
+.btn-block{width:100%;padding:var(--sp-4);font-size:var(--fs-md);font-weight:600;margin-top:var(--sp-3);border-radius:var(--radius-pill)}
+.btn-line{background:var(--bg-card);color:var(--primary);border:1px solid var(--primary)}
+.home-hero-title{font-size:var(--fs-display);letter-spacing:-0.02em;line-height:1.15;margin-bottom:var(--sp-3);font-weight:700}
+.home-sub{font-size:var(--fs-sm);color:var(--muted);margin-top:var(--sp-1);line-height:1.4}
+.home-actions{display:flex;gap:var(--sp-2);margin-top:var(--sp-3)}
+.home-actions .btn-block{flex:1;margin:0}
+.home-section-head{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-2);margin:var(--sp-5) 0 var(--sp-2)}
+.home-section-head h2{margin:0;font-size:var(--fs-lg)}
+.home-section-head .link{font-size:var(--fs-sm)}
+.count-badge{display:inline-flex;align-items:center;background:var(--primary-light);color:var(--primary-deep);font-size:var(--fs-xs);font-weight:600;padding:2px var(--sp-2);border-radius:var(--radius-tag);margin-left:var(--sp-2);line-height:1.5}
+.exchange-card{display:flex;gap:var(--sp-3);padding:var(--sp-3);background:var(--bg-card);border-radius:var(--radius-card);box-shadow:var(--shadow-1);margin-bottom:var(--sp-3)}
+.exchange-thumb{width:80px;height:80px;flex-shrink:0;border-radius:8px;background:#E8E0D0;display:flex;align-items:center;justify-content:center;color:#999;font-size:24px;overflow:hidden}
+.exchange-thumb img{width:100%;height:100%;object-fit:cover}
+.exchange-body{flex:1;min-width:0}
+.exchange-title{font-size:var(--fs-md);font-weight:600;color:var(--text);margin-bottom:var(--sp-1)}
+.exchange-meta{font-size:var(--fs-xs);color:var(--muted);margin-bottom:var(--sp-1)}
+.exchange-tags{display:flex;gap:var(--sp-1);margin-top:4px;flex-wrap:wrap}
+.tag{display:inline-flex;align-items:center;padding:2px var(--sp-2);font-size:var(--fs-xs);border-radius:var(--radius-tag);background:var(--primary-light);color:var(--primary-deep)}
+.tag-free{background:var(--primary-light);color:var(--primary-deep)}
+.tag-paid{background:#FCE4D9;color:#A04D3A}
+.tag-barter{background:#FCEEC3;color:#8A6A1E}
+.home-view-all{margin-top:var(--sp-3)}
+
+/* ════════════════════════════════════════════════════════════════════════
+   CLUSTER 3 (Editorial Botanical Commerce) OVERLAY — aggressive type variant.
+   Strategy: page-bg goes whiter (#FAFAF8 vs C5 parchment); card shadow
+   reduced to editorial-minimal; CTA → deep forest-green #1A3D2B 8px radius;
+   typography goes editorial with 3-font system (LXGW XinJin Song display +
+   LXGW WenKai accent + Fraunces italic Latin + PingFang body).
+   ════════════════════════════════════════════════════════════════════════ */
+:root {
+  /* Cluster 3 page: lighter, more catalog-magazine */
+  --bg-page: #FAFAF8;
+  /* Card surface: true white for editorial cards (C5 used parchment) */
+  --bg-card: #FFFFFF;
+  /* Primary CTA: Cluster 3 spec — deep forest #1A3D2B */
+  --primary: #1A3D2B;
+  --primary-deep: #102516;
+  /* Editorial-minimal shadow (Cluster 3 spec: 0 1px 4px rgba(0,0,0,0.06)) */
+  --shadow-1: 0 1px 4px rgba(0, 0, 0, 0.06);
+  /* CTA radius: 8px not pill */
+  --radius-btn: 8px;
+
+  /* Aggressive 3-font typography system */
+  --font-display:  "LXGW XinJin Song", "霞鹜新晋宋", "Source Han Serif SC", "Noto Serif SC", "Songti SC", Georgia, serif;
+  --font-script:   "LXGW WenKai", "霞鹜文楷", "STKaiti", "KaiTi", "Source Han Serif SC", serif;
+  --font-editorial-latin: "Fraunces", "Cormorant Garamond", "EB Garamond", Georgia, ui-serif, serif;
+  --font-body:     "PingFang SC", "Source Han Sans SC", system-ui, "Helvetica Neue", "Microsoft YaHei", sans-serif;
+}
+
+body { background: var(--bg-page); font-family: var(--font-body); }
+
+/* H1 — large editorial display, LXGW XinJin Song, dramatic weight */
+.home-hero-title {
+  font-family: var(--font-display);
+  font-size: 44px !important;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  margin-bottom: 8px;
+  color: var(--primary-deep);
+}
+
+/* English italic Latin subtitle below H1 — magazine feel */
+.c3-brand-latin {
+  font-family: var(--font-editorial-latin);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 18px;
+  letter-spacing: 0.01em;
+  color: var(--primary);
+  margin-top: -2px;
+  margin-bottom: 12px;
+  line-height: 1.2;
+  display: block;
+}
+.c3-brand-latin .opsz-soft { font-feature-settings: "salt", "swsh"; }
+
+.home-sub { font-family: var(--font-body); color: var(--muted); }
+
+/* Section heads — heavy serif with subtle 楷体 secondary */
+.home-section-head h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: 0.02em;
+  color: var(--primary-deep);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.home-section-head h2::after {
+  content: attr(data-zh-subtitle);
+  font-family: var(--font-script);
+  font-weight: 400;
+  font-size: 13px;
+  color: rgba(26, 61, 43, 0.55);
+  letter-spacing: 0;
+}
+
+/* Card chrome: editorial-minimal — near-invisible shadow + 12px radius */
+.exchange-card {
+  border-radius: 12px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-1) !important;
+  border: 1px solid rgba(26, 61, 43, 0.05);
+  padding: 14px;
+}
+
+/* Card titles: editorial serif for product name; meta in light sans */
+.exchange-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 17px;
+  letter-spacing: 0;
+  color: var(--primary-deep);
+}
+/* Tail accent for English-mixed titles: render Latin portion italic Fraunces */
+.exchange-title .latin-accent {
+  font-family: var(--font-editorial-latin);
+  font-style: italic;
+  font-weight: 400;
+  color: rgba(26, 61, 43, 0.7);
+  font-size: 15px;
+}
+/* Owner name + 楷体 accent for the artisan touch */
+.exchange-meta .by {
+  font-family: var(--font-script);
+  font-size: 13px;
+  color: var(--primary-deep);
+}
+.exchange-meta .qty,
+.exchange-meta .when { font-family: var(--font-body); }
+
+/* Tags: tighten + use deep-forest for the free=safe semantic */
+.tag-free   { background: rgba(26, 61, 43, 0.08); color: var(--primary-deep); font-weight: 500; }
+.tag-paid   { background: #FBE6D5; color: #8E3A20; font-weight: 500; }
+.tag-barter { background: #FBEEC3; color: #7B5B0E; font-weight: 500; }
+.tag        { font-family: var(--font-body); letter-spacing: 0.02em; }
+
+/* count-badge: editorial small */
+.count-badge {
+  background: rgba(26, 61, 43, 0.08);
+  color: var(--primary-deep);
+  font-family: var(--font-editorial-latin);
+  font-style: italic;
+  font-weight: 500;
+  padding: 1px 8px;
+  font-size: 13px;
+  letter-spacing: 0;
+}
+
+/* CTAs: deep forest, 8px radius, no shadow */
+button, .btn { box-shadow: none !important; font-family: var(--font-body); font-weight: 500; }
+.btn-block {
+  border-radius: var(--radius-btn) !important;
+  background: var(--primary);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+}
+.btn-line {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: transparent;
+}
+
+/* "查看全部" link in italic Latin for hint of editorial feel */
+.home-section-head .link {
+  font-family: var(--font-editorial-latin);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 14px;
+  border-bottom: none;
+  color: var(--primary);
+  letter-spacing: 0.01em;
+}
+.home-section-head .link::after { content: " →"; }
+.link::after { content: ""; } /* override the global ::after if any */
+
+/* Photo-overflow effect on a featured card — pick the FIRST card in 供 list,
+   give it a vertical layout with thumbnail extending above the card top.
+   This is the Cluster 3 spec's signature: 'Product images break the top card
+   boundary: position: absolute; top: -24px; left: 50%; transform: translateX(-50%)'. */
+.exchange-card.c3-featured {
+  flex-direction: column;
+  align-items: stretch;
+  padding: 60px 18px 18px;
+  position: relative;
+  margin-bottom: 20px;
+  overflow: visible;
+}
+.exchange-card.c3-featured .exchange-thumb {
+  position: absolute;
+  top: -24px; left: 50%; transform: translateX(-50%);
+  width: 120px; height: 120px;
+  background: transparent;
+  border-radius: 12px;
+  z-index: 2;
+}
+.exchange-card.c3-featured .exchange-body { text-align: left; }
+.exchange-card.c3-featured .exchange-title { font-size: 19px; margin-top: 4px; }
+
+/* "供 / 求" hero label inline — editorial gazette feel */
+.c3-gazette-line {
+  margin: 18px 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(26, 61, 43, 0.65);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-family: var(--font-body);
+}
+.c3-gazette-line::before,
+.c3-gazette-line::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(26, 61, 43, 0.15);
+}
+
+</style>
+</head>
+<body>
+
+<div class="view">
+
+  <!-- H1: editorial serif + italic Latin secondary line below -->
+  <h1 class="home-hero-title">菜友集市</h1>
+  <span class="c3-brand-latin opsz-soft">A <em>seed-sharing</em> circle for Portland.</span>
+  <div class="home-sub">Portland 华人菜友周末大会 · 本周六 5月17日 11:00–2:30 · 📍<a class="link" style="color:var(--primary);text-decoration:none;border-bottom:1px solid var(--primary)">Tushita Farm</a></div>
+
+  <div class="home-actions">
+    <button class="btn-block">🌾 我要出让</button>
+    <button class="btn-block">🌿 我想获得</button>
+  </div>
+
+  <!-- ─── 供 section: real data from /api/market ─────────────────────────── -->
+  <div class="c3-gazette-line">offer · 供</div>
+  <div class="home-section-head">
+    <h2 data-zh-subtitle="七十三件在让">供 <span class="count-badge">73</span></h2>
+    <a class="link">查看全部</a>
+  </div>
+
+  <!-- featured card: photo-overflow top, Cluster 3 signature -->
+  <article class="exchange-card c3-featured">
+    <div class="exchange-thumb"><img src="https://pdxgardener.com/api/media/470cab64cddd44829628e70a5a8e3785/thumb" alt="" loading="lazy"></div>
+    <div class="exchange-body">
+      <div class="exchange-title">红根菠菜</div>
+      <div class="exchange-meta"><span class="by">Fanding</span> <span class="qty">· 剩余 30 株</span> <span class="when">· 2 天前</span></div>
+      <div class="exchange-tags">
+        <span class="tag tag-free">免费</span>
+        <span class="tag">会带去</span>
+        <span class="tag">2 人申请</span>
+      </div>
+    </div>
+  </article>
+
+  <!-- regular cards: horizontal layout (existing pdx-gardener pattern preserved) -->
+  <article class="exchange-card">
+    <div class="exchange-thumb"><img src="https://pdxgardener.com/api/media/6fc4714686aa46ea823d56e4599ff558/thumb" alt="" loading="lazy"></div>
+    <div class="exchange-body">
+      <div class="exchange-title">短叶十三号早萝卜</div>
+      <div class="exchange-meta"><span class="by">乐乐</span> <span class="qty">· 剩余 8 包</span></div>
+      <div class="exchange-tags"><span class="tag tag-free">免费</span><span class="tag">会带去</span></div>
+    </div>
+  </article>
+
+  <article class="exchange-card">
+    <div class="exchange-thumb"><img src="https://pdxgardener.com/api/media/3e4d0a17dddc4748b59a1fa123a478c0/thumb" alt="" loading="lazy"></div>
+    <div class="exchange-body">
+      <div class="exchange-title">特大萝卜</div>
+      <div class="exchange-meta"><span class="by">乐乐</span> <span class="qty">· 剩余 4 包</span></div>
+      <div class="exchange-tags"><span class="tag tag-free">免费</span><span class="tag">会带去</span></div>
+    </div>
+  </article>
+
+  <article class="exchange-card">
+    <div class="exchange-thumb"><img src="https://pdxgardener.com/api/media/40d1371f21e14e0d8c778ffb2da3b1f9/thumb" alt="" loading="lazy"></div>
+    <div class="exchange-body">
+      <div class="exchange-title">贵妃南瓜<span class="latin-accent"> · pack of 6</span></div>
+      <div class="exchange-meta"><span class="by">李大草</span> <span class="qty">· 剩余 3 袋</span></div>
+      <div class="exchange-tags"><span class="tag tag-free">免费</span><span class="tag">会带去</span><span class="tag">1 人申请</span></div>
+    </div>
+  </article>
+
+  <article class="exchange-card">
+    <div class="exchange-thumb"><img src="https://pdxgardener.com/api/media/ab081add759143f5bcb9dc2fd30443fa/thumb" alt="" loading="lazy"></div>
+    <div class="exchange-body">
+      <div class="exchange-title">黄色糯玉米<span class="latin-accent"> · pack of 12</span></div>
+      <div class="exchange-meta"><span class="by">李大草</span> <span class="qty">· 剩余 3 袋</span></div>
+      <div class="exchange-tags"><span class="tag tag-free">免费</span><span class="tag">会带去</span><span class="tag">4 人申请</span></div>
+    </div>
+  </article>
+
+  <!-- english-mixed name from real data — show italic Latin treatment -->
+  <article class="exchange-card">
+    <div class="exchange-thumb" style="background:#E8E0D0;">🍅</div>
+    <div class="exchange-body">
+      <div class="exchange-title"><span class="latin-accent">Cherokee purple tomato</span> · 大黑番茄苗</div>
+      <div class="exchange-meta"><span class="by">Echo</span> <span class="qty">· 剩余 4 株</span></div>
+      <div class="exchange-tags"><span class="tag tag-free">免费</span><span class="tag">会带去</span></div>
+    </div>
+  </article>
+
+  <!-- ─── 求 section: real data from /api/wants ──────────────────────────── -->
+  <div class="c3-gazette-line">want · 求</div>
+  <div class="home-section-head">
+    <h2 data-zh-subtitle="三件在求">求 <span class="count-badge">3</span></h2>
+    <a class="link">查看全部</a>
+  </div>
+
+  <article class="exchange-card">
+    <div class="exchange-thumb" style="background:#F5F0E8;">📋</div>
+    <div class="exchange-body">
+      <div class="exchange-title">茼蒿苗</div>
+      <div class="exchange-meta"><span class="by">乐乐</span> <span class="qty">· 二十株左右</span></div>
+    </div>
+  </article>
+
+  <article class="exchange-card">
+    <div class="exchange-thumb" style="background:#F5F0E8;">📋</div>
+    <div class="exchange-body">
+      <div class="exchange-title">长豇豆</div>
+      <div class="exchange-meta"><span class="by">庆琼</span> <span class="qty">· 一份</span></div>
+    </div>
+  </article>
+
+  <button class="btn-line btn-block home-view-all">🛒 查看全部集市</button>
+</div>
+
+</body>
+</html>
