@@ -76,6 +76,16 @@ export function emitTailwindConfig(design, _opts = {}) {
 
   body += `/** @type {import('tailwindcss').Config} */\n`;
   body += `module.exports = {\n`;
+  body += `  // Tailwind v3 requires \`content\` to discover which class names exist in your\n`;
+  body += `  // source files. The default below scans common web-project layouts; adjust\n`;
+  body += `  // for your project structure (App Router uses 'app/**', Vue uses '*.vue', etc.).\n`;
+  body += `  content: [\n`;
+  body += `    './index.html',\n`;
+  body += `    './src/**/*.{html,js,jsx,ts,tsx,vue,svelte,astro,mdx}',\n`;
+  body += `    './app/**/*.{html,js,jsx,ts,tsx,vue,svelte,astro,mdx}',\n`;
+  body += `    './pages/**/*.{html,js,jsx,ts,tsx,vue,svelte,astro,mdx}',\n`;
+  body += `    './components/**/*.{html,js,jsx,ts,tsx,vue,svelte,astro,mdx}',\n`;
+  body += `  ],\n`;
   body += `  theme: {\n`;
   body += `    extend: ${stringifyJsObject(themeExtend, '    ').trimStart()},\n`;
   body += `  },\n`;

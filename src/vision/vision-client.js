@@ -41,29 +41,51 @@ export class VisionClient {
     if (!anthropicClient) {
       // Resolution order:
       //   1) explicit authToken arg / ANTHROPIC_AUTH_TOKEN env  → Bearer auth (OAuth access tokens, agent tokens)
-      //   2) explicit apiKey arg / ANTHROPIC_API_KEY env, **but** if the value starts with `sk-ant-oat` it's actually
-      //      an OAuth access token even though it was passed via the API_KEY slot → switch to Bearer auth.
-      //   3) explicit apiKey arg / ANTHROPIC_API_KEY env → x-api-key auth (standard API keys)
+      //   2) explicit apiKey arg / ANTHROPIC_API_KEY env, **but** if the value starts with:
+      //      - `sk-ant-oat`  → it's an OAuth access token; switch to Bearer
+      //      - `sk-or-`      → it's an OpenRouter key; route through OpenRouter's Anthropic-compatible endpoint
+      //   3) explicit apiKey arg / ANTHROPIC_API_KEY env → x-api-key auth (standard sk-ant-api* keys)
       const explicitAuth = authToken ?? process.env.ANTHROPIC_AUTH_TOKEN;
       const explicitApi  = apiKey    ?? process.env.ANTHROPIC_API_KEY;
 
       let useToken = explicitAuth ?? null;
       let useApi   = explicitApi  ?? null;
+      let useBaseURL = undefined;
 
       if (!useToken && useApi && /^sk-ant-oat/.test(useApi)) {
         useToken = useApi;
         useApi = null;
       }
 
-      if (!useToken && !useApi) {
-        throw new Error('No Anthropic credential found. Set ANTHROPIC_API_KEY (standard key) or ANTHROPIC_AUTH_TOKEN (OAuth/agent token).');
+      if (!useToken && useApi && /^sk-or-/.test(useApi)) {
+        // OpenRouter — exposes an Anthropic-compatible /v1/messages endpoint with Bearer auth.
+        // Model ids must be in OpenRouter's `anthropic/claude-<name>.<dotted-version>` form;
+        // we remap our standard `claude-x-y-z` ids in remapModelForBaseURL() below.
+        //
+        // baseURL is `https://openrouter.ai/api` (NOT .../api/v1) because the Anthropic SDK
+        // appends `/v1/messages` itself; setting `.../api/v1` would yield `.../api/v1/v1/messages`
+        // and OpenRouter responds with an HTML 404 page.
+        useToken = useApi;
+        useApi = null;
+        useBaseURL = 'https://openrouter.ai/api';
       }
 
-      this.client = new Anthropic({ apiKey: useApi, authToken: useToken });
+      if (!useToken && !useApi) {
+        throw new Error('No Anthropic credential found. Set ANTHROPIC_API_KEY (sk-ant-api*), ANTHROPIC_AUTH_TOKEN (sk-ant-oat*), or pass an OpenRouter sk-or-* key via --api-key.');
+      }
+
+      this.client = new Anthropic({
+        apiKey: useApi,
+        authToken: useToken,
+        ...(useBaseURL ? { baseURL: useBaseURL } : {}),
+      });
+      this.baseURL = useBaseURL ?? null;
     } else {
       this.client = anthropicClient;
+      this.baseURL = null;
     }
-    this.model = model;
+    // Remap model id if we're talking to OpenRouter — keep the canonical id otherwise.
+    this.model = remapModelForBaseURL(model, this.baseURL);
     this.maxTokens = maxTokens;
   }
 
@@ -88,7 +110,7 @@ export class VisionClient {
     // Sampling parameters are removed on Opus 4.7+ and return 400. Sonnet 4.6 / Haiku 4.5
     // still accept them. We use a low non-zero temperature for stable structured output;
     // omit it on opus-4-7. See claude-api skill / model-migration.md → Migrating to Opus 4.7.
-    if (!/^claude-opus-4-7/.test(this.model)) {
+    if (!isOpus47(this.model)) {
       req.temperature = 0.2;
     }
 
@@ -185,7 +207,7 @@ export class VisionClient {
         },
       ],
     };
-    if (!/^claude-opus-4-7/.test(this.model)) {
+    if (!isOpus47(this.model)) {
       req.temperature = 0.2;
     }
     return req;
@@ -218,7 +240,7 @@ export class VisionClient {
         { role: 'user', content: [{ type: 'text', text: userPrompt }] },
       ],
     };
-    if (!/^claude-opus-4-7/.test(this.model)) {
+    if (!isOpus47(this.model)) {
       req.temperature = 0.4; // a touch more creative for narrative output
     }
     const resp = await this.client.messages.create(req);
@@ -350,6 +372,28 @@ function packResult(observation, rawResponse, attempts) {
       cache_read_input_tokens:     rawResponse?.usage?.cache_read_input_tokens     ?? 0,
     },
   };
+}
+
+/** Remap our canonical Anthropic model id to OpenRouter's `anthropic/claude-X.Y` form when
+ *  the base URL points at OpenRouter. Pass-through otherwise. Already-prefixed ids
+ *  (containing a slash) are never modified. */
+function remapModelForBaseURL(model, baseURL) {
+  if (!baseURL || !/openrouter/i.test(baseURL)) return model;
+  if (!model || model.includes('/')) return model; // already in provider/model form
+  // claude-sonnet-4-6 → anthropic/claude-sonnet-4.6
+  // claude-opus-4-7   → anthropic/claude-opus-4.7
+  // claude-haiku-4-5  → anthropic/claude-haiku-4.5
+  // claude-3-5-haiku  → anthropic/claude-3.5-haiku
+  // Only replace dashes that sit BETWEEN digits — leave letter-digit dashes alone.
+  const remapped = model.replace(/(?<=\d)-(?=\d)/g, '.');
+  return 'anthropic/' + remapped;
+}
+
+/** Match an Opus-4-7 model id across canonical (`claude-opus-4-7`) and provider-prefixed
+ *  (`anthropic/claude-opus-4.7`) forms. Opus 4.7 removes sampling parameters. */
+function isOpus47(model) {
+  if (!model) return false;
+  return /(^|\/)claude-opus-4[\-\.]7/.test(model);
 }
 
 function packSynthesisResult(design, rawResponse, attempts) {

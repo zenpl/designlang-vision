@@ -130,6 +130,18 @@ test('tailwind-config: output is parseable as JS object (module.exports valid No
   assert.equal(cfg.theme.extend.boxShadow['botanical-drop'], undefined);
 });
 
+test('tailwind-config: emits a content array with sensible defaults (M3.1 finding #1)', async () => {
+  const body = emitTailwindConfig(FIXTURE);
+  const Module = await import('node:module');
+  const m = new Module.default('tw', null);
+  m._compile(body, 'fake-tailwind.config.js');
+  const cfg = m.exports;
+  assert.ok(Array.isArray(cfg.content), 'content must be an array');
+  assert.ok(cfg.content.length > 0, 'content must not be empty (Tailwind v3 emits nothing otherwise)');
+  assert.ok(cfg.content.some((p) => /\.html$/.test(p)), 'content includes index.html');
+  assert.ok(cfg.content.some((p) => /src/.test(p)), 'content includes src/ glob');
+});
+
 test('tailwind-config: drop-shadow filter tokens are emitted as comments, not boxShadow keys', () => {
   const body = emitTailwindConfig(FIXTURE);
   assert.match(body, /botanical-drop: drop-shadow\(/);
@@ -174,4 +186,21 @@ test('recipes-css: unscoped recipes land in recipes-other layer', () => {
 test('recipes-css: css declarations are split and indented per-line, not on one line', () => {
   const css = emitRecipesCss(FIXTURE);
   assert.match(css, /\.vrec-claycard \{\n    background: #FAFAF8;\n    border-radius: 16px;/);
+});
+
+test('recipes-css: button-like recipes get multi-selector specificity bump (M3.1 finding #6)', () => {
+  // parchmentCTA description = 'Pill CTA — Cluster 3 (Parchment Café)' → contains "CTA"
+  const css = emitRecipesCss(FIXTURE);
+  // The CTA recipe's selector should include button.X + a.X + [role=button].X
+  assert.match(css, /\.vrec-parchmentcta, button\.vrec-parchmentcta, a\.vrec-parchmentcta, \[role="button"\]\.vrec-parchmentcta \{/);
+});
+
+test('recipes-css: non-button recipes keep single class selector (no specificity bump)', () => {
+  const css = emitRecipesCss(FIXTURE);
+  // claycard is NOT a button — should remain a single-class selector
+  const claycardBlock = css.match(/\.vrec-claycard[^{]*\{[\s\S]*?\}/);
+  assert.ok(claycardBlock, 'claycard block exists');
+  // confirm the selector line does NOT include button/a/[role] prefixes
+  const firstLine = claycardBlock[0].split('\n')[0];
+  assert.doesNotMatch(firstLine, /button\.|a\.|role=/);
 });

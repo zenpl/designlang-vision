@@ -16,6 +16,7 @@ import { join } from 'node:path';
 import { VisionClient } from '../../src/vision/vision-client.js';
 import { emitVisualLanguageMd } from '../../src/vision/emitters/visual-language-md.js';
 import { emitImplementationPromptMd } from '../../src/vision/emitters/implementation-prompt-md.js';
+import { emitAssetPromptsMd } from '../../src/vision/emitters/asset-prompts-md.js';
 import { emitFromDesign } from '../../src/vision/emitters/index.js';
 
 const DESIGN = {
@@ -85,10 +86,24 @@ test('emitImplementationPromptMd: includes slug map in user prompt', async () =>
   assert.match(userText, /"foo": "\.vrec-foo"/);
 });
 
-test('emitFromDesign: orchestrates template + LLM emitters, writes all 5 files', async () => {
+test('emitAssetPromptsMd: user prompt includes cluster slug map and design JSON', async () => {
+  const stub = makeStubClient(['# Asset generation prompts for Sample Style']);
+  const client = new VisionClient({ anthropicClient: stub });
+  const result = await emitAssetPromptsMd(client, DESIGN);
+  assert.match(result.text, /^# Asset generation prompts/);
+  const userText = stub.calls[0].messages[0].content[0].text;
+  // Cluster slug map should be included so prompts can reference asset dirs
+  assert.match(userText, /"Cluster A": "cluster-a"/);
+  assert.match(userText, /"Cluster B": "cluster-b"/);
+  // Full design JSON is in the prompt
+  assert.match(userText, /"styleThesis": "Sample Style"/);
+});
+
+test('emitFromDesign: orchestrates template + LLM emitters, writes all 6 files', async () => {
   const stub = makeStubClient([
     `# Visual Language for Sample Style\n\n## 1. Style Thesis\nSample.`,
     `# Build in the "Sample Style" style\n\nUse it well.`,
+    `# Asset generation prompts for Sample Style\n\n## Cluster A — clay\n\`\`\`text\nmatte clay 3D render of {object}\n\`\`\``,
   ]);
   const client = new VisionClient({ anthropicClient: stub });
 
@@ -106,6 +121,7 @@ test('emitFromDesign: orchestrates template + LLM emitters, writes all 5 files',
     assert.ok(labels.includes('recipes.css'));
     assert.ok(labels.includes('visual-language.md'));
     assert.ok(labels.includes('prompts/implementation.md'));
+    assert.ok(labels.includes('prompts/asset-generation.md'));
 
     for (const path of Object.values(result.outputs)) {
       assert.ok(existsSync(path), `expected ${path} to exist`);
@@ -118,8 +134,12 @@ test('emitFromDesign: orchestrates template + LLM emitters, writes all 5 files',
     const vlMd = readFileSync(result.outputs['visual-language.md'], 'utf-8');
     assert.match(vlMd, /Visual Language for Sample Style/);
 
-    // 2 stub calls (one per LLM emitter)
-    assert.equal(stub.calls.length, 2);
+    // asset-generation.md got the model text
+    const assetMd = readFileSync(result.outputs['prompts/asset-generation.md'], 'utf-8');
+    assert.match(assetMd, /Asset generation prompts for Sample Style/);
+
+    // 3 stub calls (one per LLM emitter: visual + implementation + asset)
+    assert.equal(stub.calls.length, 3);
   } finally {
     rmSync(tmp, { recursive: true, force: true });
   }

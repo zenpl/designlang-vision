@@ -10,6 +10,7 @@ import { emitTailwindConfig }    from './tailwind-config.js';
 import { emitRecipesCss }        from './recipes-css.js';
 import { emitVisualLanguageMd }  from './visual-language-md.js';
 import { emitImplementationPromptMd } from './implementation-prompt-md.js';
+import { emitAssetPromptsMd }    from './asset-prompts-md.js';
 
 /**
  * Emit the 5 M3 files from a MoodboardDesign.
@@ -60,12 +61,13 @@ export async function emitFromDesign({ design, outDir, name, visionClient, onPro
   onProgress({ stage: 'm3_llm_start' });
 
   // Sequential, not parallel: easier to attribute failures, avoids concurrent rate
-  // limit pressure on Anthropic, and lets the 2nd call pick up the cached system
-  // prompt from the 1st (different prompt, but both Markdown — see note below).
-  // The cache prefix isn't shared between the two emitters because they use
-  // different system prompts; running sequential is only an attribution win.
+  // limit pressure on Anthropic, and lets the 2nd/3rd calls pick up the cached
+  // system prompt from the 1st when they happen to share a prefix (they don't
+  // here — each emitter has its own system prompt — so sequential is just an
+  // attribution win).
   const visualResult = await withRetryOnConnError(() => emitVisualLanguageMd(visionClient, design));
   const promptResult = await withRetryOnConnError(() => emitImplementationPromptMd(visionClient, design));
+  const assetResult  = await withRetryOnConnError(() => emitAssetPromptsMd(visionClient, design));
 
   const visualPath = join(absOut, `${name}-visual-language.md`);
   await writeFile(visualPath, ensureTrailingNewline(visualResult.text), 'utf-8');
@@ -75,15 +77,24 @@ export async function emitFromDesign({ design, outDir, name, visionClient, onPro
   await writeFile(promptPath, ensureTrailingNewline(promptResult.text), 'utf-8');
   outputs['prompts/implementation.md'] = promptPath;
 
-  cacheUsage.creation += visualResult.cacheUsage.cache_creation_input_tokens + promptResult.cacheUsage.cache_creation_input_tokens;
-  cacheUsage.read     += visualResult.cacheUsage.cache_read_input_tokens     + promptResult.cacheUsage.cache_read_input_tokens;
+  const assetPromptsPath = join(absOut, `${name}-prompts`, 'asset-generation.md');
+  await writeFile(assetPromptsPath, ensureTrailingNewline(assetResult.text), 'utf-8');
+  outputs['prompts/asset-generation.md'] = assetPromptsPath;
+
+  cacheUsage.creation += visualResult.cacheUsage.cache_creation_input_tokens
+    + promptResult.cacheUsage.cache_creation_input_tokens
+    + assetResult.cacheUsage.cache_creation_input_tokens;
+  cacheUsage.read     += visualResult.cacheUsage.cache_read_input_tokens
+    + promptResult.cacheUsage.cache_read_input_tokens
+    + assetResult.cacheUsage.cache_read_input_tokens;
 
   onProgress({
     stage: 'm3_llm_done',
-    files: ['visual-language.md', 'prompts/implementation.md'],
+    files: ['visual-language.md', 'prompts/implementation.md', 'prompts/asset-generation.md'],
     cacheUsage,
     visual: { rawId: visualResult.raw.id, model: visualResult.raw.model },
     prompt: { rawId: promptResult.raw.id, model: promptResult.raw.model },
+    asset:  { rawId: assetResult.raw.id,  model: assetResult.raw.model },
   });
 
   return {

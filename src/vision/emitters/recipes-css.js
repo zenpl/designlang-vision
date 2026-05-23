@@ -103,23 +103,35 @@ export function emitRecipesCss(design, _opts = {}) {
 
 // ── helpers ────────────────────────────────────────────────────────────────
 
+// Recipes whose key suggests an interactive button need extra selector specificity
+// so Tailwind preflight's `button { background-color: transparent; padding: 0; ... }`
+// doesn't beat them via cascade-layer placement. Triple-selector covers anchor +
+// native button + ARIA button — see validation/findings.md #6.
+const BUTTON_KEY_PATTERN = /(button|btn|cta|pillbtn|pill-?button)/i;
+
 function renderRecipe(key, body, indent) {
   if (!body || typeof body !== 'object') return '';
   let s = `${indent}/* ${escapeForCss(body.description || key)}`;
   if (body.note) s += ` — ${escapeForCss(body.note)}`;
   s += ` */\n`;
-  const className = '.vrec-' + slugify(key);
+  const slug = slugify(key);
+  const className = '.vrec-' + slug;
+  const isButton = BUTTON_KEY_PATTERN.test(key) || BUTTON_KEY_PATTERN.test(body.description || '');
+  // Use a more specific selector list for buttons so element-selector resets
+  // (Tailwind preflight's `button { ... }`) don't override us via cascade layers.
+  const selector = isButton
+    ? `${className}, button${className}, a${className}, [role="button"]${className}`
+    : className;
   const css = body.css || '';
-  // emit as block. CSS is verbatim from the synthesizer — split on ';' and re-indent for legibility.
   const declarations = css
     .split(';')
     .map((d) => d.trim())
     .filter(Boolean);
   if (declarations.length === 0) {
-    s += `${indent}${className} { /* (no css emitted by synthesizer) */ }\n\n`;
+    s += `${indent}${selector} { /* (no css emitted by synthesizer) */ }\n\n`;
     return s;
   }
-  s += `${indent}${className} {\n`;
+  s += `${indent}${selector} {\n`;
   for (const d of declarations) {
     s += `${indent}  ${d};\n`;
   }
