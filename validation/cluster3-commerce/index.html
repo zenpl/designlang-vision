@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Verdant — shop the spring catalog</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+    <link rel="stylesheet" href="/recipes.css" />
+    <style>
+      /* M3.1 impl.md §4 Cluster 3: page bg #FFFFFF or warm-cream #F5F0E8. Going off-white. */
+      html, body { background: #FAFAF8; }
+      body { font-family: ui-sans-serif, system-ui, sans-serif; -webkit-font-smoothing: antialiased; color: #1F2A24; }
+      /* Editorial serif — system-fallback for the humanist headings */
+      .font-editorial { font-family: 'Cormorant Garamond', 'Source Serif Pro', Georgia, ui-serif, serif; font-feature-settings: 'lnum'; }
+    </style>
+  </head>
+  <body class="min-h-screen">
+
+    <!--
+      VALIDATION HERO #3 — Cluster 3 (Editorial Botanical Commerce, Light Background)
+
+      Built from M3.1 implementation.md §4 Cluster 3 Layout Sketch (verbatim):
+        Product grid 2–3 columns. Each card 280–340px wide, 380–440px tall,
+        border-radius: 12px (card-md), 24px internal padding, 20px column gap.
+        Top 80–100px reserved for overflowing product photo (plant cutout
+        ~160px tall, centered, top: -24px). Below: product name in humanist
+        serif 18–22px, price in geometric sans 14px, full-width forest-green
+        pill CTA at card bottom. Page background #FFFFFF or warm-cream
+        #F5F0E8.
+
+      Recipes: .vrec-editorialproductcard for cards; pill CTA hand-built
+      because m31-recipes.css does not ship a Cluster 3 pill button recipe.
+      (Logging this as a finding.)
+
+      Tokens used (from implementation.md §5):
+        bg: off-white #FAFAF8
+        text: forest-green darkest #1A3D2B for CTA bg
+        accent: green-darkest #1A3D2B (CTA), green-deep #4A7C59 (price strike)
+    -->
+
+    <main class="max-w-[1180px] mx-auto px-10 py-16">
+
+      <!-- editorial header strip -->
+      <header class="mb-16 flex items-end justify-between">
+        <div>
+          <p class="text-xs uppercase tracking-[0.18em] text-neutral-500 mb-3">spring catalog · 2026</p>
+          <h1 class="font-editorial text-5xl leading-[1.05]" style="color:#1A3D2B;">
+            New growth,<br />
+            <em class="italic font-light">honestly potted.</em>
+          </h1>
+        </div>
+        <nav class="flex items-center gap-7 text-sm text-neutral-600">
+          <a href="#all" class="border-b border-neutral-900/20 pb-0.5" style="color:#1A3D2B;">All plants</a>
+          <a href="#new" class="hover:text-neutral-900">New arrivals</a>
+          <a href="#easy" class="hover:text-neutral-900">Easy care</a>
+          <a href="#cart" class="hover:text-neutral-900">Cart (0)</a>
+        </nav>
+      </header>
+
+      <!-- ── 3-column product grid (per layout sketch) ─────────────────────── -->
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+        <!-- ── Card 1 · Snake plant ──────────────────────────────────────── -->
+        <article class="vrec-editorialproductcard p-6 pt-[100px] pb-6 flex flex-col" style="height: 420px;">
+          <!-- plant cutout overflowing card top per layout sketch coords -->
+          <img
+            src="/assets/snake-plant.png"
+            alt=""
+            class="vrec-botanicaloverflow"
+            style="top: -24px; left: 50%; transform: translateX(-50%); width: 220px; height: auto;"
+            aria-hidden="true"
+          />
+          <div class="flex-1 flex flex-col justify-end">
+            <p class="text-[11px] uppercase tracking-[0.16em] text-neutral-500 mb-2">low light · easy care</p>
+            <h2 class="font-editorial text-[22px] leading-snug mb-1" style="color:#1A3D2B;">Sansevieria <em class="italic font-light">'Laurentii'</em></h2>
+            <div class="flex items-baseline gap-2 mb-5">
+              <span class="text-[14px] tabular-nums" style="color:#1A3D2B;">$42</span>
+              <span class="text-[12px] text-neutral-400 line-through tabular-nums">$54</span>
+              <span class="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded" style="background:#F0E6DC; color:#4A7C59;">spring</span>
+            </div>
+            <a href="#snake"
+               class="w-full text-center text-[13px] font-medium tracking-wide py-3 rounded-full no-underline"
+               style="background:#1A3D2B; color:#FAFAF8;">
+              Add to cart
+            </a>
+          </div>
+        </article>
+
+        <!-- ── Card 2 · Monstera ─────────────────────────────────────────── -->
+        <article class="vrec-editorialproductcard p-6 pt-[100px] pb-6 flex flex-col" style="height: 420px;">
+          <img
+            src="/assets/monstera-ceramic.png"
+            alt=""
+            class="vrec-botanicaloverflow"
+            style="top: -24px; left: 50%; transform: translateX(-50%); width: 220px; height: auto;"
+            aria-hidden="true"
+          />
+          <div class="flex-1 flex flex-col justify-end">
+            <p class="text-[11px] uppercase tracking-[0.16em] text-neutral-500 mb-2">statement leaf · bright indirect</p>
+            <h2 class="font-editorial text-[22px] leading-snug mb-1" style="color:#1A3D2B;">Monstera <em class="italic font-light">'Deliciosa'</em></h2>
+            <div class="flex items-baseline gap-2 mb-5">
+              <span class="text-[14px] tabular-nums" style="color:#1A3D2B;">$68</span>
+            </div>
+            <a href="#monstera"
+               class="w-full text-center text-[13px] font-medium tracking-wide py-3 rounded-full no-underline"
+               style="background:#1A3D2B; color:#FAFAF8;">
+              Add to cart
+            </a>
+          </div>
+        </article>
+
+        <!-- ── Card 3 · Pothos ───────────────────────────────────────────── -->
+        <article class="vrec-editorialproductcard p-6 pt-[100px] pb-6 flex flex-col" style="height: 420px;">
+          <img
+            src="/assets/pothos-trailing.png"
+            alt=""
+            class="vrec-botanicaloverflow"
+            style="top: -24px; left: 50%; transform: translateX(-50%); width: 200px; height: auto;"
+            aria-hidden="true"
+          />
+          <div class="flex-1 flex flex-col justify-end">
+            <p class="text-[11px] uppercase tracking-[0.16em] text-neutral-500 mb-2">propagation cutting · trailing</p>
+            <h2 class="font-editorial text-[22px] leading-snug mb-1" style="color:#1A3D2B;">Golden Pothos <em class="italic font-light">cutting</em></h2>
+            <div class="flex items-baseline gap-2 mb-5">
+              <span class="text-[14px] tabular-nums" style="color:#1A3D2B;">$18</span>
+              <span class="text-[12px] text-neutral-400 line-through tabular-nums">$24</span>
+              <span class="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded" style="background:#F0E6DC; color:#4A7C59;">spring</span>
+            </div>
+            <a href="#pothos"
+               class="w-full text-center text-[13px] font-medium tracking-wide py-3 rounded-full no-underline"
+               style="background:#1A3D2B; color:#FAFAF8;">
+              Add to cart
+            </a>
+          </div>
+        </article>
+
+      </section>
+
+      <!-- editorial footer strip -->
+      <footer class="mt-20 flex items-center justify-between text-xs text-neutral-500 tracking-wide pb-8">
+        <span>verdant ⋅ field-direct since 2024</span>
+        <span class="flex gap-6">
+          <span>free shipping over $40</span>
+          <span>30-day rooted guarantee</span>
+        </span>
+      </footer>
+
+    </main>
+
+  </body>
+</html>
