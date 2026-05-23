@@ -1,0 +1,252 @@
+<!doctype html>
+<!--
+  pdx-apply-c2 · Item detail screen
+  Real production item: 红根菠菜 (id=84, Fanding, 30 株 free, photo).
+  Hero photo + owner card + request quantity stepper + sticky bottom CTA.
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>菜友集市 · 红根菠菜 (C2 detail)</title>
+<link rel="stylesheet" href="_shared.css" />
+<style>
+.detail-view { max-width: 420px; margin: 0 auto; padding-bottom: 120px; }
+
+.detail-topbar {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--bg-page);
+  padding: 12px var(--sp-4);
+  display: flex; align-items: center; gap: var(--sp-3);
+}
+.detail-topbar .icon-btn { width: 40px; height: 40px; }
+.detail-topbar-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--fs-md);
+  color: var(--text-secondary);
+  flex: 1;
+}
+
+/* Hero photo in deep inset well — photo appears "set into" the page surface */
+.hero-photo {
+  margin: var(--sp-3) var(--sp-4);
+  aspect-ratio: 1;
+  border-radius: 20px;
+  background: var(--bg-card-deep);
+  box-shadow: var(--shadow-inset);
+  padding: 6px;
+  overflow: hidden;
+}
+.hero-photo img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border-radius: 16px;
+  display: block;
+}
+
+.content { padding: 0 var(--sp-4); }
+
+.title-block { margin-top: var(--sp-4); }
+.product-name {
+  font-family: var(--font-display);
+  font-weight: 400;   /* Regular — avoid AP-2 trap */
+  font-size: 26px;
+  line-height: 1.25;
+  margin: 0 0 6px;
+  color: var(--text);
+}
+.product-sub {
+  font-family: var(--font-script);
+  color: var(--text-secondary);
+  font-size: var(--fs-md);
+  letter-spacing: 0.04em;
+}
+
+.tag-row { display: flex; gap: 6px; margin: var(--sp-3) 0 var(--sp-4); flex-wrap: wrap; }
+.tag-lg { padding: 6px 12px; font-size: var(--fs-sm); font-weight: 600; border-radius: 8px; }
+
+/* Owner card — neumorphic raised pill row */
+.owner-row {
+  display: flex; align-items: center; gap: var(--sp-3);
+  padding: var(--sp-3);
+  background: var(--bg-page);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-raised-sm);
+  margin-bottom: var(--sp-4);
+}
+.avatar-well {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: var(--bg-input-well);
+  box-shadow: var(--shadow-inset-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--green-deep);
+  font-weight: 500;
+}
+.owner-info { flex: 1; min-width: 0; }
+.owner-name { font-size: var(--fs-md); font-weight: 600; color: var(--text); margin: 0; }
+.owner-stats { font-size: var(--fs-xs); color: var(--text-muted); margin-top: 2px; }
+.owner-action { font-size: var(--fs-xs); color: var(--green-deep); padding: 6px 12px; background: var(--bg-card); border-radius: var(--radius-pill); box-shadow: var(--shadow-raised-sm); cursor: pointer; }
+
+/* Section block with serif title */
+.block { margin-bottom: var(--sp-5); }
+.block-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--fs-lg);
+  color: var(--text);
+  margin: 0 0 var(--sp-3);
+}
+.kv-list { background: var(--bg-card); border-radius: var(--radius-card); padding: var(--sp-3) var(--sp-4); box-shadow: 0 1px 2px rgba(120, 105, 75, 0.06); }
+.kv-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: var(--fs-sm); }
+.kv-row + .kv-row { border-top: 1px dashed rgba(120, 105, 75, 0.18); }
+.kv-row .k { color: var(--text-muted); }
+.kv-row .v { color: var(--text); font-weight: 500; }
+
+.note {
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
+  padding: var(--sp-3) var(--sp-4);
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  box-shadow: 0 1px 2px rgba(120, 105, 75, 0.06);
+}
+.note p { margin: 0 0 8px; }
+.note p:last-child { margin-bottom: 0; }
+
+/* Quantity stepper — three neumorphic wells: −, value, + */
+.qty-stepper {
+  display: flex; align-items: center;
+  background: var(--bg-page);
+  padding: 6px;
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-inset-sm);
+  width: fit-content;
+  margin: 0;
+}
+.qty-btn {
+  width: 36px; height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: var(--bg-card);
+  color: var(--green-deep);
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: var(--shadow-raised-sm);
+}
+.qty-btn:active { box-shadow: var(--shadow-pressed); }
+.qty-value {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--fs-h2);
+  color: var(--text);
+  min-width: 64px;
+  text-align: center;
+}
+
+/* Sticky bottom action bar */
+.bottom-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(180deg, transparent 0%, var(--bg-page) 20%);
+  padding: 20px var(--sp-4) var(--sp-4);
+  display: flex; gap: var(--sp-2);
+  max-width: 420px;
+  margin: 0 auto;
+}
+.bottom-bar .btn-cta { flex: 1; }
+.bottom-bar .icon-btn {
+  width: 52px; height: 52px;
+}
+</style>
+</head>
+<body>
+
+<div class="detail-view">
+
+  <div class="detail-topbar">
+    <button class="icon-btn" aria-label="返回">←</button>
+    <div class="detail-topbar-title">来自市场</div>
+    <button class="icon-btn" aria-label="收藏">♡</button>
+  </div>
+
+  <div class="hero-photo">
+    <img src="https://pdxgardener.com/api/media/470cab64cddd44829628e70a5a8e3785/thumb" alt="红根菠菜" />
+  </div>
+
+  <div class="content">
+
+    <div class="title-block">
+      <h1 class="product-name">红根菠菜</h1>
+      <div class="product-sub">本季播种 · 适合 PDX 五月底前下地</div>
+    </div>
+
+    <div class="tag-row">
+      <span class="tag tag-free tag-lg">免费</span>
+      <span class="tag tag-bring tag-lg">会带去周末大会</span>
+      <span class="tag tag-bring tag-lg" style="background:#E8E2D2;color:#5C4D2A;">剩余 30 株</span>
+    </div>
+
+    <!-- Owner card -->
+    <div class="owner-row">
+      <div class="avatar-well">F</div>
+      <div class="owner-info">
+        <div class="owner-name">Fanding</div>
+        <div class="owner-stats">2 人申请 · 注册 6 天 · 首次出让</div>
+      </div>
+      <span class="owner-action">查看</span>
+    </div>
+
+    <!-- Details -->
+    <div class="block">
+      <h2 class="block-title">详情</h2>
+      <div class="kv-list">
+        <div class="kv-row"><span class="k">数量</span><span class="v">30 株（剩 30 株）</span></div>
+        <div class="kv-row"><span class="k">价格</span><span class="v" style="color:var(--green-deep);">免费</span></div>
+        <div class="kv-row"><span class="k">交货方式</span><span class="v">本人会带去周末大会</span></div>
+        <div class="kv-row"><span class="k">发布</span><span class="v">3 小时前</span></div>
+      </div>
+    </div>
+
+    <!-- Note -->
+    <div class="block">
+      <h2 class="block-title">菜友的话</h2>
+      <div class="note">
+        <p>自家育的红根菠菜苗，3 月底播的，现在已经长出 4-6 片真叶，<br>下地一周就能开始采。</p>
+        <p>欢迎来拿，周六早上 Tushita Farm 我会带去。</p>
+      </div>
+    </div>
+
+    <!-- Request quantity -->
+    <div class="block">
+      <h2 class="block-title">想要几株？</h2>
+      <div class="qty-stepper">
+        <button class="qty-btn" aria-label="减">−</button>
+        <span class="qty-value">3</span>
+        <button class="qty-btn" aria-label="加">+</button>
+      </div>
+      <div class="muted" style="margin-top: 8px; font-size: var(--fs-xs); padding-left: 8px;">每位菜友最多取 5 株 · Fanding 会审核</div>
+    </div>
+
+  </div>
+
+  <div class="demo-annot" style="padding: 0 var(--sp-4) 24px;">
+    <strong>C2 neumorphic + C5 fonts · Item detail</strong><br>
+    • <strong>Hero photo in deep inset well</strong> — most prominent neumorphic moment of the page; photo appears "set into" page surface like a polaroid behind glass.<br>
+    • Product name "红根菠菜" rendered in Source Han Serif SC Regular 26px — contemplative not 古籍.<br>
+    • Subtitle "本季播种 · 适合 PDX 五月底前下地" in STKaiti — script accent (1 instance).<br>
+    • Owner row: neumorphic raised card (different from cards which stay flat) + avatar in inset well + 查看 action as small raised pill. Owner name "Fanding" in plain sans (per AP-4).<br>
+    • Tags as larger pills (6×12px padding vs 3×8px card tags).<br>
+    • <strong>Quantity stepper</strong>: outer well is inset, +/− buttons are raised pills, value is Source Han Serif. Three layers of depth in one control.<br>
+    • Detail block: dashed separators inside flat card (KV layout).<br>
+    • Note block: flat card with serif title + sans body — restful, readable.<br>
+    • Sticky bottom CTA: would slot in here in production; omitted in demo so demo annotations are visible.
+  </div>
+
+</div>
+
+</body>
+</html>

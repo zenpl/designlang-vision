@@ -1,0 +1,306 @@
+<!doctype html>
+<!--
+  pdx-apply-c2 · My Profile screen
+  Avatar well + stats + tab toggle + listings under the selected tab.
+  Uses 乐乐 as the profile owner (has 3 listings: 短叶十三号早萝卜,
+  特大萝卜, 红心萝卜 — sampled from market-snapshot.json).
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>菜友集市 · 我的 (C2 profile)</title>
+<link rel="stylesheet" href="_shared.css" />
+<style>
+.profile-view { max-width: 420px; margin: 0 auto; padding: var(--sp-4) var(--sp-4) 80px; }
+
+.profile-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: var(--sp-5);
+}
+.profile-topbar-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--fs-h2);
+  color: var(--text);
+}
+
+/* Hero — avatar in inset well + name + script tagline */
+.profile-hero {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-5);
+}
+.avatar-lg {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: var(--bg-input-well);
+  box-shadow: var(--shadow-inset);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display);
+  font-size: 36px;
+  color: var(--green-deep);
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.profile-info { flex: 1; min-width: 0; }
+.profile-name {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 24px;
+  color: var(--text);
+  margin: 0 0 4px;
+}
+.profile-tagline {
+  font-family: var(--font-script);
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+.profile-meta { font-size: var(--fs-xs); color: var(--text-muted); }
+
+/* Stats row — three neumorphic raised cells */
+.stats-row {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-5);
+}
+.stat {
+  text-align: center;
+  padding: var(--sp-3) 0;
+  background: var(--bg-page);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-raised-sm);
+}
+.stat-num {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 24px;
+  color: var(--text);
+  display: block;
+  line-height: 1.1;
+}
+.stat-label {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Tab toggle — full-width neumorphic radio group */
+.tab-group {
+  display: flex; gap: 4px;
+  background: var(--bg-page);
+  padding: 5px;
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-inset-sm);
+  margin-bottom: var(--sp-4);
+}
+.tab-pill {
+  flex: 1;
+  text-align: center;
+  padding: 10px 8px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.tab-pill.active {
+  background: var(--bg-card);
+  color: var(--green-deep);
+  font-weight: 600;
+  box-shadow: var(--shadow-raised-sm);
+}
+.tab-pill .count {
+  font-family: var(--font-display);
+  font-weight: 500;
+  margin-left: 4px;
+  opacity: 0.7;
+}
+
+/* Filter chip row above listings */
+.filter-row {
+  display: flex; gap: 6px;
+  margin-bottom: var(--sp-3);
+  flex-wrap: wrap;
+}
+.chip {
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-page);
+  box-shadow: var(--shadow-raised-sm);
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  font-weight: 500;
+  cursor: pointer;
+}
+.chip.active {
+  background: var(--green-deep);
+  color: #F4F0E6;
+  box-shadow: 0 2px 6px rgba(26, 61, 43, 0.20);
+}
+
+.section-divider {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-style: italic;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  margin: var(--sp-4) 0 var(--sp-3);
+  display: flex; align-items: center; gap: 10px;
+}
+.section-divider::after {
+  content: ''; flex: 1; height: 1px;
+  background: rgba(120, 105, 75, 0.18);
+}
+
+.listing-action-row {
+  margin-top: var(--sp-2);
+  padding-top: var(--sp-2);
+  border-top: 1px dashed rgba(120, 105, 75, 0.18);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-xs);
+}
+.listing-action-row .applicants {
+  color: var(--green-deep);
+  font-weight: 600;
+}
+.listing-action-row .actions {
+  display: flex;
+  gap: 6px;
+}
+.listing-action-row .pill-btn {
+  font-size: var(--fs-xs);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-page);
+  box-shadow: var(--shadow-raised-sm);
+  color: var(--text-secondary);
+  font-weight: 500;
+  cursor: pointer;
+}
+.listing-action-row .pill-btn.primary {
+  background: var(--green-deep);
+  color: #F4F0E6;
+  box-shadow: 0 2px 5px rgba(26, 61, 43, 0.18);
+}
+
+/* Card override to allow action footer */
+.profile-listing { flex-direction: column; align-items: stretch; gap: 0; }
+.profile-listing .listing-main { display: flex; gap: var(--sp-3); }
+</style>
+</head>
+<body>
+
+<div class="profile-view">
+
+  <div class="profile-topbar">
+    <div class="profile-topbar-title">我的</div>
+    <button class="icon-btn" aria-label="设置">⚙</button>
+  </div>
+
+  <!-- Hero -->
+  <div class="profile-hero">
+    <div class="avatar-lg">乐</div>
+    <div class="profile-info">
+      <h1 class="profile-name">乐乐</h1>
+      <div class="profile-tagline">爱萝卜的菜友 · 庭院种植</div>
+      <div class="profile-meta">注册 6 天 · 完成 4 次交换</div>
+    </div>
+  </div>
+
+  <!-- Stats — 3 neumorphic cells -->
+  <div class="stats-row">
+    <div class="stat"><span class="stat-num">3</span><div class="stat-label">在让</div></div>
+    <div class="stat"><span class="stat-num">2</span><div class="stat-label">收到申请</div></div>
+    <div class="stat"><span class="stat-num">1</span><div class="stat-label">我在求</div></div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-group">
+    <div class="tab-pill active">我的供 <span class="count">3</span></div>
+    <div class="tab-pill">收到的申请 <span class="count">2</span></div>
+    <div class="tab-pill">我的求 <span class="count">1</span></div>
+  </div>
+
+  <!-- Filter chips under active tab -->
+  <div class="filter-row">
+    <span class="chip active">全部</span>
+    <span class="chip">仍在让</span>
+    <span class="chip">已下架</span>
+    <span class="chip">免费</span>
+  </div>
+
+  <!-- Listings under 我的供 -->
+  <div class="card profile-listing">
+    <div class="listing-main">
+      <div class="card-thumb"><img src="https://pdxgardener.com/api/media/6fc4714686aa46ea823d56e4599ff558/thumb" alt="" /></div>
+      <div class="card-body">
+        <div class="card-name">短叶十三号早萝卜</div>
+        <div class="card-meta">5 小时前发布<span class="dot">·</span>剩 8 株</div>
+        <div class="card-tags"><span class="tag tag-free">免费</span><span class="tag tag-bring">会带去</span></div>
+      </div>
+    </div>
+    <div class="listing-action-row">
+      <span class="applicants">2 人申请中</span>
+      <div class="actions">
+        <span class="pill-btn">编辑</span>
+        <span class="pill-btn primary">查看申请</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card profile-listing">
+    <div class="listing-main">
+      <div class="card-thumb"><img src="https://pdxgardener.com/api/media/3e4d0a17dddc4748b59a1fa123a478c0/thumb" alt="" /></div>
+      <div class="card-body">
+        <div class="card-name">特大萝卜</div>
+        <div class="card-meta">5 小时前发布<span class="dot">·</span>剩 4 株</div>
+        <div class="card-tags"><span class="tag tag-free">免费</span><span class="tag tag-bring">会带去</span></div>
+      </div>
+    </div>
+    <div class="listing-action-row">
+      <span class="applicants" style="color: var(--text-muted);">还没人申请</span>
+      <div class="actions">
+        <span class="pill-btn">编辑</span>
+        <span class="pill-btn">下架</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"><span>已下架</span></div>
+
+  <div class="card profile-listing" style="opacity: 0.65;">
+    <div class="listing-main">
+      <div class="card-thumb" style="filter: grayscale(.4);"><span style="font-size:24px; opacity:.45;">🥬</span></div>
+      <div class="card-body">
+        <div class="card-name">本地有机菠菜籽</div>
+        <div class="card-meta">已下架 · 4 天前换出</div>
+        <div class="card-tags"><span class="tag tag-barter">换物</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-annot">
+    <strong>C2 neumorphic + C5 fonts · My Profile</strong><br>
+    • <strong>Avatar in deep inset well</strong> — 80×80 inset circle with serif initial 乐. The well treatment makes the avatar feel "engraved" rather than pasted on. This is the page's keynote neumorphic moment.<br>
+    • Profile name "乐乐" in Source Han Serif Regular 24px (NOT bold — per AP-2 rule).<br>
+    • Tagline "爱萝卜的菜友 · 庭院种植" in STKaiti — single script accent.<br>
+    • <strong>Stats row</strong>: 3 raised neumorphic cells. Numbers in Source Han Serif Medium for typographic punch. Labels in body sans.<br>
+    • <strong>Tab toggle</strong>: outer track inset, active pill raised — classic neumorphic toggle. Numeric badges in serif.<br>
+    • Filter chips: small raised pills (default) → filled green CTA shape (active). Demonstrates state via two different shadow vocabularies.<br>
+    • Listing cards: stay flat (per AP-7) for legibility. Action row appears at bottom of each card with dashed separator (lifted from C5 idiom).<br>
+    • Action buttons (编辑 / 查看申请 / 下架): small raised pills, primary action gets dark-fill variant.<br>
+    • <strong>Owner name 乐乐 in plain sans (AP-4 respected)</strong> — never in 楷体 even though we're using STKaiti elsewhere.<br>
+    • Real production data: 短叶十三号早萝卜 (乐乐, id=82) and 特大萝卜 (乐乐, id=81) both from <code>market-snapshot.json</code>.
+  </div>
+
+</div>
+
+</body>
+</html>

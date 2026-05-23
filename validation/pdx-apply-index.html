@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>pdx-gardener · 5 cluster applies (index)</title>
+<style>
+:root {
+  --bg: #14171A;
+  --bg-2: #1B1F22;
+  --ink: #E8E5DD;
+  --ink-mute: #A8A39A;
+  --accent: #C9A75A;
+  --border: #2A2F33;
+  --good: #6BA888;
+  --warn: #C99B5A;
+  --bad:  #C97070;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, "PingFang SC", "Source Han Sans SC", system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.wrap { max-width: 1280px; margin: 0 auto; padding: 32px 24px 80px; }
+header { margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+h1 { font-size: 24px; font-weight: 700; margin: 0 0 8px; letter-spacing: -0.01em; }
+.sub { color: var(--ink-mute); margin: 0; }
+.legend { margin-top: 16px; font-size: 12px; color: var(--ink-mute); display: flex; gap: 18px; flex-wrap: wrap; }
+.legend .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+.dot.good { background: var(--good); } .dot.warn { background: var(--warn); } .dot.bad { background: var(--bad); }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+.card {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: border-color 120ms ease, transform 120ms ease;
+}
+.card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.thumb {
+  aspect-ratio: 420 / 820;
+  background: #0E1113;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.thumb img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+.title-row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.title { font-weight: 700; font-size: 16px; margin: 0; }
+.verdict { font-size: 11px; padding: 2px 8px; border-radius: 9999px; border: 1px solid var(--border); white-space: nowrap; }
+.verdict.good { color: var(--good); border-color: var(--good); }
+.verdict.warn { color: var(--warn); border-color: var(--warn); }
+.verdict.bad  { color: var(--bad);  border-color: var(--bad);  }
+.cluster-name { color: var(--ink-mute); font-size: 12px; margin: 0; }
+.desc { color: var(--ink); font-size: 13px; margin: 0; }
+.links { display: flex; gap: 12px; margin-top: 4px; padding-top: 12px; border-top: 1px solid var(--border); }
+.links a {
+  flex: 1;
+  text-align: center;
+  padding: 8px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.links a.primary { background: var(--accent); color: #1A1410; border-color: var(--accent); }
+.links a:hover { border-color: var(--accent); }
+.links a.primary:hover { filter: brightness(1.08); }
+
+.docs-row {
+  margin-top: 36px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+.docs-row h2 { font-size: 16px; margin: 0 0 12px; color: var(--ink-mute); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+.doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.doc {
+  padding: 12px 16px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 13px;
+}
+.doc:hover { border-color: var(--accent); }
+.doc .name { font-weight: 600; }
+.doc .what { color: var(--ink-mute); font-size: 12px; margin-top: 2px; }
+
+footer { margin-top: 48px; font-size: 12px; color: var(--ink-mute); }
+footer code { background: var(--bg-2); padding: 1px 5px; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>pdx-gardener · 5 cluster applies</h1>
+    <p class="sub">本地预览 · 真实生产数据 · designlang-vision validation 套件</p>
+    <div class="legend">
+      <span><span class="dot good"></span>成功</span>
+      <span><span class="dot warn"></span>部分/有条件成功</span>
+      <span><span class="dot bad"></span>失败（保留作反例）</span>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- BEFORE -->
+    <div class="card">
+      <div class="thumb"><img src="pdx-apply-c5/screenshot-before.png" alt="before"/></div>
+      <div>
+        <div class="title-row">
+          <h3 class="title">Before</h3>
+          <span class="verdict">baseline</span>
+        </div>
+        <p class="cluster-name">原 pdx-gardener 首页</p>
+        <p class="desc">Sans Bold H1 · 暖米卡片 · emoji 缩略图 · 绿色 pill CTA — neighborhood community board feel</p>
+      </div>
+      <div class="links">
+        <a href="pdx-apply-c5/before.html" class="primary">↗ Live</a>
+      </div>
+    </div>
+
+    <!-- C1 -->
+    <div class="card">
+      <div class="thumb"><img src="pdx-apply-c1/screenshot-after-c1.png" alt="C1"/></div>
+      <div>
+        <div class="title-row">
+          <h3 class="title">C1 · 黏土 diorama</h3>
+          <span class="verdict good">✅ 5 个里最好</span>
+        </div>
+        <p class="cluster-name">Matte Clay 3D Botanical Diorama (full chrome, distance 1)</p>
+        <p class="desc">Polymer-clay 装饰 3 处（hero / section head / 空状态）· 暖米卡片保留 · 软糯 dual shadow — 最贴近 pdx 原品牌的细化</p>
+      </div>
+      <div class="links">
+        <a href="pdx-apply-c1/after-c1.html" class="primary">↗ Live</a>
+        <a href="pdx-apply-c1/findings.md">findings</a>
+      </div>
+    </div>
+
+    <!-- C2 -->
+    <div class="card">
+      <div class="thumb"><img src="pdx-apply-c2/screenshot-after-c2.png" alt="C2"/></div>
+      <div>
+        <div class="title-row">
+          <h3 class="title">C2 · Neumorphic</h3>
+          <span class="verdict warn">⚠️ 手术式 OK</span>
+        </div>
+        <p class="cluster-name">Neumorphic Soft-Extrusion (surgical, distance 1)</p>
+        <p class="desc">Neumorphic 只用在 CTA/count/thumb-well/view-all 五处 · 卡片本体平面保留可读性 · inset thumb-well 是亮点</p>
+      </div>
+      <div class="links">
+        <a href="pdx-apply-c2/after-c2.html" class="primary">↗ Live</a>
+        <a href="pdx-apply-c2/findings.md">findings</a>
+      </div>
+    </div>
+
+    <!-- C3 -->
+    <div class="card">
+      <div class="thumb"><img src="pdx-apply-c3/screenshot-after-c3.png" alt="C3"/></div>
+      <div>
+        <div class="title-row">
+          <h3 class="title">C3 · Editorial 杂志</h3>
+          <span class="verdict bad">❌ 失败案例</span>
+        </div>
+        <p class="cluster-name">Editorial Botanical Commerce (full attempted, distance 3)</p>
+        <p class="desc">Display 宋体 + italic festival × 6 + photo-overflow + 楷体 owner names — 调性错配；保留作 anti-pattern 反例</p>
+      </div>
+      <div class="links">
+        <a href="pdx-apply-c3/after-c3.html" class="primary">↗ Live</a>
+        <a href="pdx-apply-c3/findings.md">failure analysis</a>
+      </div>
+    </div>
+
+    <!-- C4 -->
+    <div class="card">
+      <div class="thumb"><img src="pdx-apply-c4/screenshot-after-c4.png" alt="C4"/></div>
+      <div>
+        <div class="title-row">
+          <h3 class="title">C4 · Dark forest</h3>
+          <span class="verdict warn">⚠️ 立得住 · 看品牌方向</span>
+        </div>
+        <p class="cluster-name">Dark Forest-Green Showcase (structural cream-island, distance 3)</p>
+        <p class="desc">Cream 卡片在 dark forest page 上 float · 金色 accent 节制 · 用户照片永不直接接触深色背景 — Portland lookbook 调</p>
+      </div>
+      <div class="links">
+        <a href="pdx-apply-c4/after-c4.html" class="primary">↗ Live</a>
+        <a href="pdx-apply-c4/findings.md">findings</a>
+      </div>
+    </div>
+
+    <!-- C5 -->
+    <div class="card">
+      <div class="thumb"><img src="pdx-apply-c5/screenshot-after.png" alt="C5"/></div>
+      <div>
+        <div class="title-row">
+          <h3 class="title">C5 · Parchment 水彩</h3>
+          <span class="verdict good">✅</span>
+        </div>
+        <p class="cluster-name">Artisanal Flat Parchment Café (full, distance 1)</p>
+        <p class="desc">Parchment 纸纹 + dashed 橄榄绿边框 + 思源宋体 restraint — 跟 C1 同属"温和升级"派系</p>
+      </div>
+      <div class="links">
+        <a href="pdx-apply-c5/after.html" class="primary">↗ Live</a>
+        <a href="pdx-apply-c5/apply-plan.md">apply plan</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="docs-row">
+    <h2>C2 multi-page · neumorphic + C5 fonts</h2>
+    <p style="margin: 0 0 16px; font-size: 13px; color: var(--ink-mute); line-height: 1.6;">
+      把 C2 chrome 推到 pdx-gardener 其他 4 个核心页面 ·
+      字体改用 C5 组合（思源宋体 Regular + STKaiti accent + PingFang body）·
+      shared <code style="color: var(--accent); background: rgba(201,167,90,0.08); padding: 1px 5px; border-radius: 3px;">_shared.css</code>
+    </p>
+    <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));">
+
+      <div class="card">
+        <div class="thumb" style="aspect-ratio: 420/1100;"><img src="pdx-apply-c2/pages/screenshot-login.png" alt="login"/></div>
+        <div><div class="title-row"><h3 class="title" style="font-size:14px;">Login</h3></div>
+        <p class="desc" style="font-size:12px;">Brand mark + inset username + 4-cell PIN wells + 双层 CTA</p></div>
+        <div class="links"><a href="pdx-apply-c2/pages/login.html" class="primary">↗ Live</a></div>
+      </div>
+
+      <div class="card">
+        <div class="thumb" style="aspect-ratio: 420/1800;"><img src="pdx-apply-c2/pages/screenshot-item-detail.png" alt="item detail"/></div>
+        <div><div class="title-row"><h3 class="title" style="font-size:14px;">Item detail</h3></div>
+        <p class="desc" style="font-size:12px;">Hero 照片在 deep inset well + owner card + 3-depth qty stepper</p></div>
+        <div class="links"><a href="pdx-apply-c2/pages/item-detail.html" class="primary">↗ Live</a></div>
+      </div>
+
+      <div class="card">
+        <div class="thumb" style="aspect-ratio: 420/2000;"><img src="pdx-apply-c2/pages/screenshot-post-offer.png" alt="post offer"/></div>
+        <div><div class="title-row"><h3 class="title" style="font-size:14px;">Post offer form</h3></div>
+        <p class="desc" style="font-size:12px;">表单是 neumorphic 最饱满的舞台——3 张照片 slot + inset 文本 + raised radio</p></div>
+        <div class="links"><a href="pdx-apply-c2/pages/post-offer.html" class="primary">↗ Live</a></div>
+      </div>
+
+      <div class="card">
+        <div class="thumb" style="aspect-ratio: 420/1800;"><img src="pdx-apply-c2/pages/screenshot-profile.png" alt="profile"/></div>
+        <div><div class="title-row"><h3 class="title" style="font-size:14px;">My profile</h3></div>
+        <p class="desc" style="font-size:12px;">Avatar 凹入 well · 3 stat cells · tab toggle · 卡片底 action row</p></div>
+        <div class="links"><a href="pdx-apply-c2/pages/profile.html" class="primary">↗ Live</a></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="docs-row">
+    <h2>Methodology · 操作手册</h2>
+    <div class="doc-grid">
+      <a class="doc" href="../docs/README.md">
+        <div class="name">docs/README.md</div>
+        <div class="what">索引 · 从这里开始</div>
+      </a>
+      <a class="doc" href="../docs/apply-methodology.md">
+        <div class="name">apply-methodology.md</div>
+        <div class="what">操作手册 · 21KB · 诊断流程 + 8 条反模式 + 材料库</div>
+      </a>
+      <a class="doc" href="../docs/apply-methodology-comparison.md">
+        <div class="name">apply-methodology-comparison.md</div>
+        <div class="what">5-way 对比 · 7 个轴 + 6 个跨案例 pattern</div>
+      </a>
+      <a class="doc" href="../docs/apply-methodology-self-review.md">
+        <div class="name">apply-methodology-self-review.md</div>
+        <div class="what">弱点 + 覆盖盲区 + 下一步</div>
+      </a>
+    </div>
+  </div>
+
+  <footer>
+    本地预览服务 · 用 <code>↗ Live</code> 跳到每个 apply 的 HTML demo。<br>
+    访问真实生产 thumbnail 需要外网；JSON snapshot 已保存在每个目录的 <code>market-snapshot.json</code> / <code>wants-snapshot.json</code>。
+  </footer>
+</div>
+</body>
+</html>

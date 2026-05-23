@@ -49,3 +49,66 @@ foundation language of an entire screen.
 For pdx-gardener specifically: the thumb-well treatment is worth
 adopting standalone (low risk, high payoff). Full-CTA neumorphic
 is a trade-off — gains modern calm, loses neighborhood warmth.
+
+---
+
+## Multi-page expansion (2026-05-23)
+
+After the home apply, the C2 chrome was extended to 4 more pages —
+Login, Item detail, Post offer form, My profile — to test how the
+neumorphic vocabulary travels across different page types
+(`pages/login.html`, `pages/item-detail.html`, `pages/post-offer.html`,
+`pages/profile.html`).
+
+The 4 pages use a shared `_shared.css` token sheet with one key change
+from the original home apply: **typography stack swapped to Cluster 5's
+font combo per user preference (2026-05-23)**.
+
+### The C5 font swap finding
+
+Original home (`after-c2.html`) used PingFang sans for everything,
+which gave the page a clean-but-cool "Apple Health for plants" feel —
+documented as the partial-loss in the original findings.
+
+New multi-page applies use:
+- `--font-display: Source Han Serif SC` at **Regular weight** (NOT Bold —
+  AP-2 trap avoided) for H1, page titles, stat numbers, quantity values
+- `--font-script: STKaiti` for **single accent moments only** (tagline,
+  intro line, italic section divider)
+- `--font-body: PingFang SC` for body text and (per AP-4) all
+  user-generated names
+
+**Effect**: the serif-Regular display + 楷体 single-accent shifted the
+brand register from "iOS calm modern" back toward "contemplative
+neighbor". The neumorphic depth controls (which on their own read
+clinical) are now anchored by humanist typography. **Net result is
+warmer than the original C2 home page.**
+
+### Page-by-page neumorphic showcase
+
+| Page | Neumorphic moments | Why this page benefits |
+|---|---|---|
+| Login | Brand mark raised circle · username inset · 4-cell PIN wells · raised secondary CTA · pressed primary CTA | Minimal screen — 5 distinct neumorphic surfaces visible at once, makes for a clean material demo |
+| Item detail | Hero photo in deep inset well (polaroid-behind-glass) · owner avatar inset · 3-depth quantity stepper (inset outer + raised buttons + serif value) | Most photo-forward page; deep inset on hero is the page keynote |
+| Post offer form | Inset photo slots × 3 · inset text + textarea · raised radio pills inside inset track · neumorphic stepper · sticky-bottom raised submit | **Forms are the canonical neumorphic context** — each control encodes affordance via depth: inset = "write here", raised = "press here" |
+| Profile | Avatar in deep 80×80 inset well · 3 raised stat cells · tab toggle (inset track + raised active pill) · filter chips · per-card action row with raised pill buttons | Hierarchy/dashboard test — neumorphic conveys hierarchy without color saturation |
+
+### Cross-page rules that held up
+
+1. **Cards stay flat** on every page that has cards (item detail owner
+   card is the one raised exception — it acts as a single CTA chip,
+   not a content card).
+2. **One STKaiti accent per page**, max — login tagline / item-detail
+   subtitle / form intro line / profile tagline. Four pages × one
+   accent each = no inflation.
+3. **All user names** (Fanding, 乐乐, 李大草) render in plain PingFang
+   sans — AP-4 respected even though STKaiti is in the stack.
+4. **All page H1s in Source Han Serif Regular**, not Bold. The
+   restraint preserves the contemplative-not-古籍 register.
+
+### What was deliberately not done
+
+- **Did NOT retrofit the home page (`after-c2.html`)** with C5 fonts.
+  Kept the original (PingFang-only) so the comparison "what does the
+  font swap actually change?" is visible across the same chrome.
+  If user prefers, this is a one-edit follow-up.

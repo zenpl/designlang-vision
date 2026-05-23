@@ -1,0 +1,144 @@
+<!doctype html>
+<!--
+  pdx-apply-c2 · Login screen
+  Cluster 2 surgical neumorphic + Cluster 5 typography stack.
+  pdx-gardener login is just: 用户名 + 4-digit password.
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>菜友集市 · 登录 (C2 neumorphic · C5 fonts)</title>
+<link rel="stylesheet" href="_shared.css" />
+<style>
+.login-wrap {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--sp-5) var(--sp-5);
+  max-width: 420px;
+  margin: 0 auto;
+}
+.brand {
+  display: flex; align-items: center; gap: var(--sp-3);
+  margin-bottom: var(--sp-6);
+}
+.brand-mark {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  background: var(--bg-page);
+  box-shadow: var(--shadow-raised);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px;
+}
+.brand-name {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 28px;
+  letter-spacing: -0.005em;
+  color: var(--text);
+}
+.tagline {
+  font-family: var(--font-script);
+  color: var(--text-secondary);
+  font-size: var(--fs-md);
+  margin-top: -8px;
+  margin-bottom: var(--sp-6);
+  padding-left: 8px;
+  letter-spacing: 0.05em;
+}
+.pin-row {
+  display: flex; gap: var(--sp-2);
+  justify-content: space-between;
+  margin-top: 6px;
+}
+.pin-cell {
+  flex: 1;
+  aspect-ratio: 1;
+  background: var(--bg-input-well);
+  border-radius: var(--radius-input);
+  box-shadow: var(--shadow-inset-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--text);
+}
+.pin-cell.filled { color: var(--green-deep); }
+.divider {
+  display: flex; align-items: center; gap: 10px;
+  margin: var(--sp-5) 0 var(--sp-4);
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+}
+.divider::before, .divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(120, 105, 75, 0.20);
+}
+.footer-link {
+  text-align: center;
+  margin-top: var(--sp-5);
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+.footer-link a { color: var(--green-deep); font-weight: 600; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="login-wrap">
+
+  <div class="brand">
+    <div class="brand-mark">🌿</div>
+    <div>
+      <div class="brand-name">菜友集市</div>
+      <div class="tagline">邻里换菜，温柔以待</div>
+    </div>
+  </div>
+
+  <div class="field">
+    <label class="field-label">用户名 <span class="hint">微信昵称即可</span></label>
+    <input class="input" type="text" placeholder="李大草 / Fanding / 乐乐..." value="Fanding">
+  </div>
+
+  <div class="field">
+    <label class="field-label">登录密码 <span class="hint">4 位数字</span></label>
+    <div class="pin-row">
+      <div class="pin-cell filled">•</div>
+      <div class="pin-cell filled">•</div>
+      <div class="pin-cell filled">•</div>
+      <div class="pin-cell">_</div>
+    </div>
+  </div>
+
+  <button class="btn-cta btn-cta-primary btn-block" style="margin-top: var(--sp-4);">登 录</button>
+
+  <div class="divider"><span>第一次来？</span></div>
+
+  <button class="btn-cta btn-block">✿ 新注册一个菜友账号</button>
+
+  <div class="footer-link">
+    继续即表示同意 <a>菜友守则</a> · <a>隐私说明</a>
+  </div>
+
+  <div class="demo-annot">
+    <strong>C2 neumorphic + C5 fonts · Login</strong><br>
+    • Brand mark: neumorphic raised circle (3D 凸起) — 64×64 well with leaf glyph.<br>
+    • Username input: inset well (3D 凹陷) — text appears "set into" the surface.<br>
+    • 4-cell PIN input: each digit gets its own inset cell, filled cells use <code>--font-display</code> dot.<br>
+    • Primary submit: filled dark green CTA (consistent with home page).<br>
+    • Secondary register button: pure neumorphic raised pill (no fill).<br>
+    • Brand name "菜友集市" rendered in Source Han Serif SC Regular (NOT bold — avoids AP-2 古籍 trap).<br>
+    • Tagline "邻里换菜，温柔以待" rendered in STKaiti — 8 字 wenyan-style accent, one event only.<br>
+    • Owner sample data: "Fanding" pre-filled to validate against AP-4 (decorative type on user names) — render is plain PingFang, not 楷体.
+  </div>
+
+</div>
+
+</body>
+</html>

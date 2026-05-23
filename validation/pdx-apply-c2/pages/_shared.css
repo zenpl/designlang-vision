@@ -1,0 +1,334 @@
+/* ============================================================
+   pdx-apply-c2 · multi-page shared tokens
+   Cluster 2 (Neumorphic Soft-Extrusion) chrome + Cluster 5
+   typography stack (user-preferred font combo, 2026-05-23).
+
+   Strategy: surgical neumorphic — only on CTAs, inputs, count
+   badges, thumb wells, brand marks, and toggle controls.
+   Cards stay flat-cream for body legibility.
+
+   Font discipline (informed by AP-2 in apply-methodology.md):
+     - Source Han Serif SC at REGULAR weight, NOT Bold display.
+       Bold + serif Chinese reads as 古籍 heritage; Regular reads
+       as contemplative/literary. We want the latter.
+     - PingFang sans for body text (≥14px lines).
+     - STKaiti only for genuine accent (signature line, single
+       wenyan-style phrase) — never for owner names (AP-4).
+   ============================================================ */
+
+:root {
+  --bg-page:          #E8E4D9;
+  --bg-card:          #F4F0E6;
+  --bg-card-deep:     #DCD8CC;
+  --bg-input-well:    #DED8C8;
+
+  --green-deep:       #1A3D2B;
+  --green-mid:        #4A7C59;
+  --green-light:      #88C4A0;
+  --green-soft:       #D8F3DC;
+  --peach:            #E89868;
+  --terra:            #B85A3A;
+  --gold-warm:        #B59450;
+
+  --text:             #2D3030;
+  --text-secondary:   #5F6862;
+  --text-muted:       #8A938C;
+  --text-link:        #1A3D2B;
+
+  --shadow-raised:    -4px -4px 10px rgba(255, 255, 255, 0.85),
+                       4px  4px 10px rgba(160, 145, 110, 0.30);
+  --shadow-raised-sm: -2px -2px 5px rgba(255, 255, 255, 0.80),
+                       2px  2px 5px rgba(160, 145, 110, 0.25);
+  --shadow-inset:     inset -3px -3px 6px rgba(255, 255, 255, 0.60),
+                      inset  3px  3px 6px rgba(160, 145, 110, 0.22);
+  --shadow-inset-sm:  inset -2px -2px 4px rgba(255, 255, 255, 0.55),
+                      inset  2px  2px 4px rgba(160, 145, 110, 0.20);
+  --shadow-pressed:   inset -2px -2px 4px rgba(255, 255, 255, 0.55),
+                      inset  3px  3px 6px rgba(120, 105, 75, 0.28);
+
+  --radius-card: 14px;
+  --radius-pill: 9999px;
+  --radius-btn:  16px;
+  --radius-input: 12px;
+
+  --fs-display: 28px;
+  --fs-h2:      20px;
+  --fs-lg:      18px;
+  --fs-md:      15px;
+  --fs-sm:      13px;
+  --fs-xs:      12px;
+
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:24px; --sp-6:32px;
+
+  /* === Cluster 5 typography stack (user-preferred 2026-05-23) === */
+  --font-display: "Source Han Serif SC", "Noto Serif SC", "Songti SC",
+                  Georgia, ui-serif, serif;
+  --font-script:  "STKaiti", "KaiTi", "楷体", "Source Han Serif SC", serif;
+  --font-body:    "PingFang SC", "Source Han Sans SC", "Noto Sans SC",
+                  -apple-system, "Helvetica Neue", sans-serif;
+}
+
+html, body {
+  font-family: var(--font-body);
+  background: var(--bg-page);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* All page H1s use serif Regular weight */
+h1, h2 {
+  margin: 0;
+}
+.page-title {
+  font-family: var(--font-display);
+  font-weight: 400;   /* REGULAR, not bold — see AP-2 */
+  font-size: var(--fs-display);
+  letter-spacing: -0.005em;
+  line-height: 1.2;
+  color: var(--text);
+}
+.section-title {
+  font-family: var(--font-display);
+  font-weight: 500;   /* medium — slightly heavier than H1 for visual rhythm */
+  font-size: var(--fs-h2);
+  color: var(--text);
+}
+.script-accent {
+  font-family: var(--font-script);
+  color: var(--text-secondary);
+}
+
+.view {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: var(--sp-5) var(--sp-4) 80px;
+}
+
+/* ============================================================
+   Top bar (used on item-detail, post-offer, profile)
+   Has neumorphic back button + serif page title centered
+   ============================================================ */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-5);
+}
+.icon-btn {
+  width: 40px; height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: var(--bg-page);
+  color: var(--text);
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: var(--shadow-raised-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon-btn:active { box-shadow: var(--shadow-pressed); }
+.topbar .topbar-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--fs-lg);
+  color: var(--text);
+  flex: 1;
+  text-align: center;
+}
+.topbar .topbar-right { width: 40px; flex-shrink: 0; }
+
+/* ============================================================
+   CTAs
+   ============================================================ */
+.btn-cta {
+  min-height: 52px;
+  padding: var(--sp-3) var(--sp-4);
+  border: none;
+  border-radius: var(--radius-btn);
+  background: var(--bg-page);
+  color: var(--green-deep);
+  font-family: var(--font-body);
+  font-size: var(--fs-md);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: var(--shadow-raised);
+  transition: box-shadow 120ms ease;
+}
+.btn-cta:active { box-shadow: var(--shadow-pressed); }
+.btn-cta-primary {
+  background: var(--green-deep);
+  color: #F4F0E6;
+  box-shadow:  4px 4px 10px rgba(120, 105, 75, 0.30),
+              inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+.btn-cta-primary:active {
+  box-shadow: 2px 2px 5px rgba(120, 105, 75, 0.20),
+              inset 0 2px 4px rgba(0, 0, 0, 0.22);
+  transform: translateY(1px);
+}
+.btn-cta-warm {
+  background: var(--peach);
+  color: #4A2818;
+  box-shadow:  4px 4px 10px rgba(180, 90, 40, 0.20),
+              inset 0 1px 0 rgba(255, 255, 255, 0.20);
+}
+.btn-block { width: 100%; }
+.btn-row { display: flex; gap: var(--sp-2); }
+
+/* ============================================================
+   Form controls — inset neumorphic wells
+   ============================================================ */
+.field {
+  margin-bottom: var(--sp-4);
+}
+.field-label {
+  display: block;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  padding-left: 4px;
+}
+.field-label .hint {
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  font-weight: 400;
+  margin-left: 8px;
+}
+.input,
+.textarea {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--bg-input-well);
+  border: none;
+  border-radius: var(--radius-input);
+  font-family: var(--font-body);
+  font-size: var(--fs-md);
+  color: var(--text);
+  box-shadow: var(--shadow-inset-sm);
+  -webkit-appearance: none;
+}
+.input:focus,
+.textarea:focus { outline: 2px solid var(--green-mid); outline-offset: 2px; }
+.input::placeholder,
+.textarea::placeholder { color: var(--text-muted); }
+.textarea { resize: vertical; min-height: 88px; line-height: 1.55; }
+
+/* Inline input with prefix or suffix */
+.input-row {
+  display: flex; align-items: stretch; gap: var(--sp-2);
+}
+
+/* Radio pill group — neumorphic raised by default, inset when selected */
+.radio-group {
+  display: flex; gap: var(--sp-2);
+  background: var(--bg-page);
+  padding: 6px;
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-inset-sm);
+}
+.radio-group input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
+.radio-pill {
+  flex: 1;
+  padding: 10px 14px;
+  text-align: center;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: box-shadow 120ms ease, color 120ms ease;
+}
+.radio-pill.selected,
+input[type="radio"]:checked + .radio-pill {
+  background: var(--bg-card);
+  color: var(--green-deep);
+  font-weight: 600;
+  box-shadow: var(--shadow-raised-sm);
+}
+
+/* Toggle (binary) — same as radio but two options */
+.toggle {
+  display: inline-flex;
+  background: var(--bg-page);
+  padding: 5px;
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-inset-sm);
+}
+.toggle-opt {
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.toggle-opt.active {
+  background: var(--bg-card);
+  color: var(--green-deep);
+  font-weight: 600;
+  box-shadow: var(--shadow-raised-sm);
+}
+
+/* ============================================================
+   Card (kept flat — neumorphic only on internal wells)
+   ============================================================ */
+.card {
+  display: flex;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
+  box-shadow: 0 1px 2px rgba(120, 105, 75, 0.08);
+  margin-bottom: var(--sp-3);
+}
+.card-thumb {
+  width: 80px; height: 80px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: var(--bg-card-deep);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  box-shadow: var(--shadow-inset);
+  padding: 3px;
+}
+.card-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 9px; }
+.card-body { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+.card-name { font-size: var(--fs-md); font-weight: 600; color: var(--text); margin: 0 0 4px; line-height: 1.35; }
+.card-meta { font-size: var(--fs-xs); color: var(--text-muted); margin-bottom: var(--sp-2); }
+.card-meta .dot { opacity: 0.6; margin: 0 4px; }
+.card-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.tag {
+  display: inline-flex; align-items: center;
+  padding: 3px 8px;
+  font-size: var(--fs-xs); font-weight: 500;
+  border-radius: 6px;
+}
+.tag-free   { background: #D8F3DC; color: #1B4332; }
+.tag-paid   { background: #FCE4D9; color: #A04D3A; }
+.tag-barter { background: #FCEEC3; color: #8A6A1E; }
+.tag-bring  { background: var(--bg-card-deep); color: var(--text-secondary); }
+
+/* ============================================================
+   Tiny shared helpers
+   ============================================================ */
+.muted { color: var(--text-muted); }
+.sec   { color: var(--text-secondary); }
+.link  { color: var(--green-deep); text-decoration: none; border-bottom: 1px dashed var(--green-mid); padding-bottom: 1px; }
+
+.demo-annot {
+  margin-top: 48px;
+  padding-top: 16px;
+  border-top: 1px dashed rgba(120, 105, 75, 0.3);
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+.demo-annot strong { color: var(--text-secondary); }
+.demo-annot code { background: rgba(0,0,0,0.05); padding: 1px 4px; border-radius: 3px; }
