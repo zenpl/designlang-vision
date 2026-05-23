@@ -49,7 +49,15 @@ You will receive a heuristic-proposed clustering as a starting point. The heuris
 - **clusters[].localClaims**: claims that hold inside this cluster but didn't qualify for consensus. These are the moodboard's sub-style facts.
 - **consensus.materials / lighting / depth / palette / components / implementationRules**: each entry is a \`supportedClaim\` with mandatory \`supportSourceIds\` + optional \`supportClusterNames\` + optional \`confidence\`. If a claim only appears in 1 image, do NOT include it in consensus — move it to that cluster's localClaims.
 - **tokens**: a draft of design tokens (color, font, spacing) that the moodboard suggests. Free-form object. Be conservative; M3 emitters will refine. Reasonable to leave empty if signal is thin.
-- **recipes**: draft CSS recipes for the consensus material / depth / lighting patterns. Free-form object. Same: conservative.
+- **recipes**: draft CSS recipes for the consensus material / depth / lighting patterns. Free-form object. **Each entry has {description, css, note?}** where \`description\` references the cluster(s) the recipe belongs to (e.g. "— Cluster 1 (Diorama)" or "— Clusters 1, 3, 4").
+
+  **Coverage rule — emit one recipe per role per cluster**: for every cluster you identify, walk through its layout-defining roles and emit a recipe for each one that has cluster-specific styling. The minimum role set per cluster:
+    1. **Card / surface** — the main content container surface (background, radius, border or shadow). Emit even if it's just \`{ background: '...', border-radius: '...', box-shadow: '...' }\` (or \`box-shadow: none\` for flat clusters). Name like \`<cluster>Card\` (e.g. \`clayCard\`, \`neumorphicCard\`, \`editorialProductCard\`, \`darkProductCard\`, \`parchmentCard\`).
+    2. **Primary CTA / button** — the cluster's pill/rectangular call-to-action. Name like \`<cluster>PillButton\` or \`<cluster>CTA\`. Include \`box-shadow: none\` explicitly if the cluster forbids elevation. **Do not skip CTA recipes for clusters whose layout sketch references a button** — the M3 emitter's button-selector-specificity bump (which triggers Tailwind preflight resistance) only applies when the recipe exists.
+    3. **Overflow / decoration** — if the cluster permits boundary-breaking, emit \`<cluster>Overflow\` or reuse \`botanicalOverflow\`. If it forbids overflow (strict-contained clusters), do NOT emit this — the absence is itself a signal.
+    4. **Special primitives** — donut/progress ring for loyalty UIs, inset grooves for neumorphic, etc. Emit when the cluster has a uniquely identifying widget.
+
+  Do not omit a card-surface recipe for any cluster on the grounds that "it's just a colored rectangle" — flat / inset / minimal-shadow surfaces are STILL the cluster's primary visual primitive and deserve a named recipe with explicit \`box-shadow: none\` (or whatever) so downstream emitters know not to default-elevate them.
 - **confidence**: overall + per-cluster, on [0,1]. Be calibrated. If clusters disagree on material language and you're forcing them under one thesis, overall confidence should drop.
 
 # Hard requirements (the synthesizer will be rejected without these)

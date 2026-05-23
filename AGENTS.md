@@ -49,7 +49,16 @@ git log fork-base..upstream/main         # what's new upstream since we forked
   - 62/62 tests passing (47 M1+M2 + 15 M3: template-emitter goldenish + LLM-emitter mocked SDK + orchestrator wiring).
   - **Live M3 baseline** on 10-image fixture: 5 files produced, ~$0.10, ~5 min. visual-language.md = 357 lines with 11-section order intact; implementation prompt = 164 lines (≤200 budget) with cluster contradiction callouts. Anti-patterns in both outputs explicitly name "averaging clusters into one aesthetic" as the failure mode the system rejects.
   - Stability fix during baseline: LLM emitter Promise.all hit "Connection error" twice in a row; switched to sequential calls + `withRetryOnConnError` (one 2s-backoff retry on connection-class errors). Third attempt succeeded.
-- 🎯 **MVP complete**. Next steps live outside the M1/M2/M3 scope: live URL-as-input ingestion, Figma/PDF input, shadcn theme emitter, MCP server. Re-read `architecture.md` §9 (out-of-scope) before picking any of them up.
+- ✅ **M3.2 (post-validation prompt + emitter refinement)**
+  - Closes all six aggregated cluster-validation findings (C1–C5 = 18 observations distilled to 6 actionable edits):
+    1. M2 synth prompt: every cluster emits at minimum a card-surface + a CTA recipe (was: only sometimes). Result on 10-image fixture: 10 → 12 recipes, with newly-shipped `editorialProductCard`/`editorialCTA`/`neumorphicCard`/`neumorphicPillButton`/`neumorphicInsetGroove`/`neumorphicProgressRing`.
+    2. M3 implementation prompt: each layout sketch must include explicit responsive breakpoints + collision warnings between absolutely-positioned siblings + paper-grain texture hint for soft-surface clusters.
+    3. M3 asset prompt: example fills now tagged with scale (`(large feature, ≥160px)` / `(small icon, ≤80px)` / `(mid, 80–160px)`) and prompts include explicit bottom-anchored / overflow-headroom composition rules.
+    4. Tailwind emitter: `tokens.typography` style descriptions now resolve to concrete `fontFamily` stacks with sensible system-font fallbacks (Inter for geometric sans, Cormorant Garamond for humanist serif, etc.) — was comment-only in M3 / M3.1.
+  - 5-of-5 cluster validation evidence under `validation/cluster{1,2,3,4,5}-*/findings.md` (18 findings total).
+  - Tests: 68/68 ✓ (added 3 fontFamily tests, no other test changes needed).
+  - Live M3.2 baseline: `out/m32-10img-sonnet/` (M2+M3 only, reused M1 observations from M3.1 run).
+- 🎯 **MVP + 1 round of validation-driven refinement complete**. Next steps live outside the M1/M2/M3 scope: live URL-as-input ingestion, Figma/PDF input, shadcn theme emitter, MCP server. Re-read `architecture.md` §9 (out-of-scope) before picking any of them up.
 
 ## Don't do without checking with the user
 

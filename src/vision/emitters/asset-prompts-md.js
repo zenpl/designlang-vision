@@ -38,8 +38,15 @@ For EACH cluster in the moodboard, emit a \`## Cluster N — <name>\` section co
    - composition: isolated, no background, centered
    - output format constraints: "transparent PNG, square 1024×1024, no shadow baked in (we'll add cast shadow via CSS)"
    - explicit "DO NOT" lines for the material the cluster forbids (e.g. for Cluster 1: "DO NOT add specular highlights, glossy reflections, photorealism, or vector illustration style")
-3. **Example fills** — 3–5 example {object} values that fit this cluster (e.g. for Cluster 1: "monstera leaf, terracotta pot with sprout, cinnamon stick, glass jar with grain"). These should be objects that match the cluster's source-image vocabulary, not arbitrary.
-4. **Provider-specific tweaks** — 2–3 short bullets noting how to adapt the prompt for DALL-E vs Midjourney vs Flux (e.g. "DALL-E 3: prepend 'A studio product shot of a'; Midjourney: append \`--ar 1:1 --no background\`; Flux Pro: add 'transparent background, isolated subject' since Flux is less reliable with no-bg phrasing").
+3. **Example fills** — 3–5 example {object} values that fit this cluster (e.g. for Cluster 1: "monstera leaf, terracotta pot with sprout, cinnamon stick, glass jar with grain"). These should be objects that match the cluster's source-image vocabulary, not arbitrary. **Tag each example with its intended scale**: \`(large feature, ≥160px)\` for hero / boundary-breaking assets, \`(small icon, ≤80px)\` for thumbnail / corner-decoration use, \`(mid, 80–160px)\` for inline product/card images. The reason: complex motifs (botanical wreaths, multi-prop dioramas) read as visual noise when shrunk; simple sprigs read as featureless dots when enlarged. Different generation targets need different complexity.
+
+4. **Composition rules baked into the template** — every cluster's prompt template should include one or both of these positioning instructions (depending on the cluster's use case):
+   - **Bottom-anchored baseline**: "Subject is bottom-anchored — bottom of pot, stem base, or main mass sits at ~80% from the frame top, leaving room for the subject to extend upward. Ensures consistent baseline alignment when multiple assets are composited into a product grid." (Required for clusters whose layout sketch describes a grid of assets — C3 catalog, C4 product-card strip, sometimes C5 thumbnails.)
+   - **Centered-with-overflow-headroom**: "Subject centered, with ~15% headroom at the top of the frame for the asset to overflow above a card boundary when composited (per cluster recipe's negative \`top:\` value)." (Required for clusters whose layout sketch positions the asset with absolute \`top: -Npx\` overflow — C1 diorama, C2 mobile cards, C3 product cards.)
+
+   Pick the appropriate one based on each cluster's layout sketch in design.recipes / dnaSummary. Do not pick both unless the cluster uses the same asset for both grid and overflow contexts.
+
+5. **Provider-specific tweaks** — 2–3 short bullets noting how to adapt the prompt for DALL-E vs Midjourney vs Flux (e.g. "DALL-E 3: prepend 'A studio product shot of a'; Midjourney: append \`--ar 1:1 --no background\`; Flux Pro: add 'transparent background, isolated subject' since Flux is less reliable with no-bg phrasing").
 
 # Hard requirements
 

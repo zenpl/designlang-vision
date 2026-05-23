@@ -142,6 +142,41 @@ test('tailwind-config: emits a content array with sensible defaults (M3.1 findin
   assert.ok(cfg.content.some((p) => /src/.test(p)), 'content includes src/ glob');
 });
 
+test('tailwind-config: typography style descriptions resolve to concrete fontFamily stacks (M3.2 finding #C1-4)', async () => {
+  // Same fixture as above; tokens.typography has a heading-style description.
+  const body = emitTailwindConfig(FIXTURE);
+  const Module = await import('node:module');
+  const m = new Module.default('tw', null);
+  m._compile(body, 'fake-tailwind.config.js');
+  const cfg = m.exports;
+  assert.ok(cfg.theme.extend.fontFamily, 'fontFamily key must exist');
+  assert.ok(Array.isArray(cfg.theme.extend.fontFamily['heading-style']), 'heading-style maps to an array stack');
+  const stack = cfg.theme.extend.fontFamily['heading-style'];
+  // The fixture description is "geometric sans-serif, light–regular weight"
+  // → guessFontStack should pick the geometric-sans branch starting with Inter
+  assert.equal(stack[0], 'Inter');
+  assert.ok(stack.includes('system-ui'), 'has system-ui fallback');
+  assert.ok(stack.includes('sans-serif'), 'ends with sans-serif generic');
+});
+
+test('tailwind-config: serif typography description picks serif-leaning fontFamily stack', async () => {
+  const serifFixture = {
+    ...FIXTURE,
+    tokens: {
+      ...FIXTURE.tokens,
+      typography: { 'heading-editorial': 'humanist serif, italic accents, low contrast' },
+    },
+  };
+  const body = emitTailwindConfig(serifFixture);
+  const Module = await import('node:module');
+  const m = new Module.default('tw', null);
+  m._compile(body, 'fake-tailwind.config.js');
+  const cfg = m.exports;
+  const stack = cfg.theme.extend.fontFamily['heading-editorial'];
+  assert.equal(stack[0], 'Cormorant Garamond');
+  assert.ok(stack.includes('serif'), 'ends with serif generic');
+});
+
 test('tailwind-config: drop-shadow filter tokens are emitted as comments, not boxShadow keys', () => {
   const body = emitTailwindConfig(FIXTURE);
   assert.match(body, /botanical-drop: drop-shadow\(/);

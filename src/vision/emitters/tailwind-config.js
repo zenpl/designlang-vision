@@ -65,13 +65,28 @@ export function emitTailwindConfig(design, _opts = {}) {
     }
     body += `\n`;
   }
+
+  // Typography tokens are style-description strings from the M2 synthesizer
+  // (e.g. "geometric sans-serif, light weight, low contrast"). We resolve them
+  // to concrete font-family fallback stacks based on detected style hints,
+  // then emit BOTH as a `fontFamily` token (concrete, usable) AND as a
+  // header comment retaining the original style description (still useful as
+  // a font-choice guide). Closes validation finding #C1-4.
+  const fontFamily = {};
   if (tokens.typography) {
-    body += `// NOTE: typography tokens are style descriptions (not font-family/font-size pairs);\n`;
-    body += `// they appear here as guidance for choosing actual font stacks.\n`;
-    for (const [name, value] of Object.entries(tokens.typography)) {
-      body += `//   ${name}: ${escapeForComment(String(value))}\n`;
+    body += `// NOTE: typography tokens originate as style descriptions; emitted below as\n`;
+    body += `// fontFamily keys with sensible system-font fallback stacks. Swap for your\n`;
+    body += `// chosen typefaces (e.g. Inter for geometric sans, Fraunces for serif) without\n`;
+    body += `// changing key names — the rest of the design system references these names.\n`;
+    for (const [name, description] of Object.entries(tokens.typography)) {
+      const stack = guessFontStack(String(description));
+      fontFamily[name] = stack;
+      body += `//   ${name}: ${escapeForComment(String(description))} → ${stack.join(', ')}\n`;
     }
     body += `\n`;
+  }
+  if (Object.keys(fontFamily).length) {
+    themeExtend.fontFamily = fontFamily;
   }
 
   body += `/** @type {import('tailwindcss').Config} */\n`;
@@ -125,4 +140,41 @@ function stringifyJsValue(v, indent) {
 
 function quoteKey(k) {
   return /^[A-Za-z_$][\w$]*$/.test(k) ? k : `'${k.replace(/'/g, "\\'")}'`;
+}
+
+/** Map a synthesizer-style typography description (e.g. "geometric sans-serif, light
+ *  weight, low contrast" / "humanist serif, italic accents" / "vintage script") to a
+ *  concrete CSS font-family stack starting with a sensible suggested face and ending
+ *  in safe system fallbacks. The point is that a developer importing this config gets
+ *  fontFamily tokens that *render* immediately, while still being labeled with the
+ *  cluster's intended type personality. */
+function guessFontStack(description) {
+  const d = String(description).toLowerCase();
+  // The classification order matters: "sans-serif" contains "serif" as a substring,
+  // so we MUST detect sans first (anywhere in the description) and only fall to
+  // serif branches when no sans signal is present.
+  const hasSans = /\bsans\b|sans-serif/.test(d);
+  const hasSerif = /\bserif\b/.test(d) && !hasSans;
+
+  if (/mono|monospace|code|tabular/.test(d)) {
+    return ['JetBrains Mono', 'IBM Plex Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'];
+  }
+  if (hasSans) {
+    if (/(humanist|warm|rounded|soft)/.test(d)) {
+      return ['Manrope', 'DM Sans', 'system-ui', '-apple-system', 'Helvetica Neue', 'sans-serif'];
+    }
+    // Default sans → geometric (Inter is the safe modern default)
+    return ['Inter', 'Mona Sans', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Helvetica Neue', 'Arial', 'sans-serif'];
+  }
+  if (hasSerif) {
+    if (/(humanist|transitional|old.?style|garamond|caslon|book)/.test(d)) {
+      return ['Cormorant Garamond', 'EB Garamond', 'Source Serif Pro', 'Georgia', 'ui-serif', 'serif'];
+    }
+    if (/(script|calligraph|handwritten|cursive|italic)/.test(d)) {
+      return ['Cormorant Garamond', 'Playfair Display', 'Lora', 'Georgia', 'ui-serif', 'serif'];
+    }
+    return ['Fraunces', 'Source Serif Pro', 'Georgia', 'ui-serif', 'serif'];
+  }
+  // No sans / serif signal: default to clean geometric system sans
+  return ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Helvetica Neue', 'Arial', 'sans-serif'];
 }
