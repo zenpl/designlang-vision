@@ -1,0 +1,205 @@
+{
+  "_meta": {
+    "styleThesis": "Botanical Dimensional UI: Clay Diorama + Neumorphic + Editorial Commerce",
+    "sourceCount": 10,
+    "clusterCount": 5,
+    "clusters": [
+      {
+        "name": "Matte Clay 3D Botanical Diorama UI",
+        "weight": 0.35,
+        "sourceIds": [
+          "img_01",
+          "img_02",
+          "img_05",
+          "img_07"
+        ]
+      },
+      {
+        "name": "Neumorphic Soft-Extrusion Mobile UI",
+        "weight": 0.2,
+        "sourceIds": [
+          "img_08",
+          "img_09"
+        ]
+      },
+      {
+        "name": "Editorial Botanical Commerce (Light Background)",
+        "weight": 0.15,
+        "sourceIds": [
+          "img_04",
+          "img_08"
+        ]
+      },
+      {
+        "name": "Dark Forest-Green Botanical Product Showcase",
+        "weight": 0.2,
+        "sourceIds": [
+          "img_06",
+          "img_10"
+        ]
+      },
+      {
+        "name": "Artisanal Flat Parchment Café UI",
+        "weight": 0.1,
+        "sourceIds": [
+          "img_03"
+        ]
+      }
+    ],
+    "generatedBy": "designlang-vision M3 tokens-json emitter"
+  },
+  "color": {
+    "green-light": {
+      "$value": "#88C4A0",
+      "$type": "color"
+    },
+    "green-mid": {
+      "$value": "#5A8A6A",
+      "$type": "color"
+    },
+    "green-deep": {
+      "$value": "#4A7C59",
+      "$type": "color"
+    },
+    "green-forest": {
+      "$value": "#2D5A3D",
+      "$type": "color"
+    },
+    "green-darkest": {
+      "$value": "#1A3D2B",
+      "$type": "color"
+    },
+    "peach-coral": {
+      "$value": "#F4A070",
+      "$type": "color"
+    },
+    "warm-cream": {
+      "$value": "#F5F0E8",
+      "$type": "color"
+    },
+    "warm-beige": {
+      "$value": "#F0E6DC",
+      "$type": "color"
+    },
+    "parchment": {
+      "$value": "#F5F0E6",
+      "$type": "color"
+    },
+    "off-white": {
+      "$value": "#FAFAF8",
+      "$type": "color"
+    },
+    "neutral-grey": {
+      "$value": "#E8E8E8",
+      "$type": "color"
+    },
+    "gold-accent": {
+      "$value": "#C8A84B",
+      "$type": "color"
+    },
+    "red-accent-sparingly": {
+      "$value": "#C0392B",
+      "$type": "color"
+    },
+    "orange-cta": {
+      "$value": "#FF5722",
+      "$type": "color"
+    },
+    "surface": {
+      "clay-background": {
+        "$value": "#F8FAF8",
+        "$type": "color"
+      },
+      "clay-card": {
+        "$value": "#FAFAF8",
+        "$type": "color"
+      },
+      "neumorphic-base": {
+        "$value": "#E8E8E8",
+        "$type": "color"
+      },
+      "dark-studio": {
+        "$value": "#1A3D2B",
+        "$type": "color"
+      },
+      "parchment-base": {
+        "$value": "#F5F0E6",
+        "$type": "color"
+      }
+    }
+  },
+  "borderRadius": {
+    "tile-sm": {
+      "$value": "12px",
+      "$type": "dimension"
+    },
+    "card-md": {
+      "$value": "16px",
+      "$type": "dimension"
+    },
+    "card-lg": {
+      "$value": "24px",
+      "$type": "dimension"
+    },
+    "pill": {
+      "$value": "999px",
+      "$type": "dimension"
+    },
+    "circle": {
+      "$value": "50%",
+      "$type": "dimension"
+    }
+  },
+  "shadow": {
+    "clay-card": {
+      "$value": "0 12px 40px rgba(0,0,0,0.10)",
+      "$type": "shadow"
+    },
+    "clay-tile": {
+      "$value": "0 4px 12px rgba(0,0,0,0.08)",
+      "$type": "shadow"
+    },
+    "clay-button": {
+      "$value": "0 4px 10px rgba(0,0,0,0.10)",
+      "$type": "shadow"
+    },
+    "clay-contact": {
+      "$value": "filter: drop-shadow(0 6px 8px rgba(0,0,0,0.15))",
+      "$type": "shadow"
+    },
+    "neumorphic-raised": {
+      "$value": "-4px -4px 10px #ffffff, 4px 4px 10px rgba(0,0,0,0.12)",
+      "$type": "shadow"
+    },
+    "neumorphic-inset": {
+      "$value": "inset 2px 2px 5px rgba(0,0,0,0.10), inset -2px -2px 5px #ffffff",
+      "$type": "shadow"
+    },
+    "editorial-minimal": {
+      "$value": "0 1px 4px rgba(0,0,0,0.06)",
+      "$type": "shadow"
+    }
+  },
+  "typography": {
+    "heading-clay": {
+      "$value": "geometric sans-serif, light–regular weight, wide tracking, low contrast",
+      "$type": "typography"
+    },
+    "heading-editorial": {
+      "$value": "humanist serif or calligraphic script, italic, warm off-white on dark green",
+      "$type": "typography"
+    },
+    "body-universal": {
+      "$value": "geometric sans-serif, light weight, tight line-height, low contrast",
+      "$type": "typography"
+    },
+    "letterSpacing-heading": {
+      "$value": "0.04em–0.06em",
+      "$type": "typography"
+    },
+    "letterSpacing-body": {
+      "$value": "0em–0.01em",
+      "$type": "typography"
+    }
+  }
+}

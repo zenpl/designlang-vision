@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Verdant — grow your garden</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+    <!-- M3-emitted recipes.css linked directly to bypass PostCSS @import drop — see findings #5 -->
+    <link rel="stylesheet" href="/recipes.css" />
+  </head>
+  <body class="min-h-screen flex items-center justify-center">
+
+    <!--
+      VALIDATION HERO — Cluster 1 (Matte Clay 3D Botanical Diorama UI)
+
+      Built only from implementation.md (vendored at ./implementation.md). I have NOT
+      looked at the moodboard's source images or MoodboardDesign JSON.
+
+      Implementation.md decisions traced:
+        - L162 (§8): "marketing splash → Cluster 1 with .vrec-claycard panels + overflowing 3D props"
+        - L46:       "3D props must erupt from / wrap around card boundaries"
+        - L48:       "blob/organic background forms or paper-cutout leaf layers inside card interiors"
+        - L107:      tokens.borderRadius.card-lg = 24px
+        - L112:      tokens.shadow.clay-card = 0 12px 40px rgba(0,0,0,0.10)
+        - L114:      tokens.shadow.clay-button = 0 4px 10px rgba(0,0,0,0.10)
+        - L115:      tokens.shadow.clay-contact = filter: drop-shadow(0 6px 8px rgba(0,0,0,0.15))
+                     (only on 3D prop elements)
+        - L125-128:  recipes available — .vrec-claycard / .vrec-claytile / .vrec-claypillbutton / .vrec-botanicaloverflow
+        - L89-103:   palette tokens — green-light / warm-cream / warm-beige / peach-coral
+
+      Gaps I had to fill in (logged to findings.md):
+        - No concrete layout grid for hero (heading position, prop placement direction)
+        - No 3D prop assets — using inline SVG placeholders
+        - Typography: §5 doesn't say what `heading-clay` font stack maps to in code
+    -->
+
+    <section class="relative w-full max-w-[1080px] mx-8 py-16">
+
+      <!-- ── clay diorama hero card ────────────────────────────────────────── -->
+      <article class="vrec-claycard p-12 md:p-16 min-h-[480px] grid md:grid-cols-2 gap-8 items-center">
+
+        <!-- sculptural background blob (per L48) ─────────────────────────── -->
+        <svg
+          class="absolute -top-12 -left-8 w-72 h-72 -z-0 opacity-40 pointer-events-none"
+          viewBox="0 0 200 200" fill="none" aria-hidden="true">
+          <path d="M 40 100 Q 30 40 90 30 Q 160 25 170 90 Q 180 160 110 170 Q 30 175 40 100 Z"
+                fill="#F0E6DC"/>
+        </svg>
+
+        <!-- copy column ─────────────────────────────────────────────────────── -->
+        <div class="relative z-10">
+          <p class="uppercase tracking-[0.06em] text-sm text-green-deep mb-4 font-medium">
+            new season · spring 2026
+          </p>
+          <h1 class="text-5xl md:text-6xl font-light tracking-tight leading-[1.05] text-green-darkest mb-6">
+            Grow your<br />everyday garden.
+          </h1>
+          <p class="text-lg text-green-deep/80 mb-10 max-w-md leading-relaxed">
+            Hand-picked seedlings, gentle tools, and rooted advice — delivered to your door
+            so your windowsill becomes a quiet ritual.
+          </p>
+          <div class="flex flex-wrap gap-4 items-center">
+            <!-- Using <a> not <button>: Tailwind preflight resets button bg/padding/color in
+                 a way that beats the recipe's cascade layer. See findings #7. -->
+            <a href="#start" class="vrec-claypillbutton inline-block no-underline">
+              Start a garden
+            </a>
+            <a href="#tour" class="text-green-darkest text-sm tracking-wide underline-offset-4 hover:underline">
+              See the seasonal plan →
+            </a>
+          </div>
+        </div>
+
+        <!-- visual column with diorama tiles + 3D props (per L46 overflow rule) ─ -->
+        <div class="relative h-[400px]">
+
+          <!-- stat tile floating bottom-left -->
+          <div class="vrec-claytile absolute bottom-8 left-0 w-44 z-20">
+            <div class="text-xs uppercase tracking-wider text-green-deep mb-1">monthly box</div>
+            <div class="text-3xl text-green-darkest font-light leading-none">12 species</div>
+            <div class="text-xs text-green-deep/70 mt-1">curated for your zone</div>
+          </div>
+
+          <!-- secondary tile floating middle-right -->
+          <div class="vrec-claytile absolute top-12 right-0 w-48 z-20">
+            <div class="text-xs uppercase tracking-wider text-green-deep mb-1">rooted by</div>
+            <div class="text-2xl text-green-darkest font-light leading-snug">14k growers</div>
+            <div class="text-xs text-green-deep/70 mt-1">since 2024</div>
+          </div>
+
+          <!-- 3D monstera leaf prop erupting from top of card (vrec-botanicaloverflow) -->
+          <svg
+            class="vrec-botanicaloverflow"
+            style="top: -56px; right: 50px; width: 180px; height: 240px;"
+            viewBox="0 0 100 130" fill="none" aria-hidden="true">
+            <!-- stylized monstera leaf — single sage-green shape, layered with darker mid-vein -->
+            <path d="M 50 125 Q 48 80 22 55 Q 5 38 18 22 Q 32 8 50 20 Q 68 8 82 22 Q 95 38 78 55 Q 52 80 50 125 Z
+                     M 25 50 L 50 75 M 75 50 L 50 75"
+                  fill="#88C4A0" stroke="#4A7C59" stroke-width="1.5"/>
+            <!-- leaf perforations (organic notches) -->
+            <ellipse cx="34" cy="35" rx="4" ry="7" fill="#F5F0E8"/>
+            <ellipse cx="66" cy="35" rx="4" ry="7" fill="#F5F0E8"/>
+          </svg>
+
+          <!-- 3D clay pot prop erupting from bottom-right -->
+          <svg
+            class="vrec-botanicaloverflow"
+            style="bottom: -32px; right: -16px; width: 160px; height: 180px;"
+            viewBox="0 0 100 110" fill="none" aria-hidden="true">
+            <!-- pot body -->
+            <path d="M 25 50 L 75 50 L 70 100 Q 50 105 30 100 Z" fill="#F4A070"/>
+            <!-- pot rim -->
+            <ellipse cx="50" cy="50" rx="25" ry="6" fill="#E89866"/>
+            <!-- a tiny sprout out the top -->
+            <path d="M 50 50 Q 48 30 45 20 Q 50 25 55 18 Q 60 28 50 50 Z" fill="#5A8A6A"/>
+          </svg>
+        </div>
+      </article>
+
+      <!-- meta strip beneath card (still in section, NOT a card) -->
+      <div class="flex items-center justify-between mt-8 px-2 text-sm text-green-deep/70 tracking-wide">
+        <span>verdant ⋅ since 2024</span>
+        <span class="flex gap-6">
+          <span>free shipping on first box</span>
+          <span>cancel any month</span>
+        </span>
+      </div>
+
+    </section>
+
+  </body>
+</html>
