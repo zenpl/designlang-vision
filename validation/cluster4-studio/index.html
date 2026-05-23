@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Verdant Reserve — premium botanical collection</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+    <link rel="stylesheet" href="/recipes.css" />
+    <style>
+      /* M3.1 impl.md §4 Cluster 4: page bg #1A3D2B (dark-studio) is load-bearing. */
+      html, body { background: #1A3D2B; }
+      body { font-family: ui-sans-serif, system-ui, sans-serif; -webkit-font-smoothing: antialiased; color: #E8D5B0; }
+      .font-editorial { font-family: 'Cormorant Garamond', 'Source Serif Pro', Georgia, ui-serif, serif; }
+    </style>
+  </head>
+  <body class="min-h-screen">
+
+    <!--
+      VALIDATION HERO #4 — Cluster 4 (Dark Forest-Green Botanical Product Showcase)
+
+      Built from M3.1 impl.md §4 Cluster 4 layout sketch (verbatim):
+        Full-bleed section, min-height 560–720px, background #1A3D2B.
+        Two-column desktop: left 55% holds headline (humanist serif,
+        48–64px, gold-accent or white) + body + pill CTA in green-forest
+        or white outline; right 45% is the botanical staging zone — 3D
+        plant or food photo absolutely positioned, bottom: 0; right: -32px,
+        extending 40–80px above section top edge with clay-contact
+        drop-shadow. Circular icon panels (80×80, border-radius: 50%) in
+        2×2 strip within the left column, 12px gap.
+
+      Asset NOTE: unlike C1/C2/C3, Cluster 4 assets bake the dark-green
+      backdrop into the PNG (no transparency). So positioning them on
+      the #1A3D2B section, they appear as continuous staged scenes.
+
+      Recipes available for this cluster:
+        .vrec-darkstudiosection  bg:#1A3D2B; overflow:visible
+        .vrec-darkproductcard    bg:#2D5A3D; radius 16px; subtle shadow
+    -->
+
+    <!-- ── HERO Section: gold serif + tropical plant on right ─────────────── -->
+    <section class="vrec-darkstudiosection w-full" style="min-height: 680px;">
+      <div class="max-w-[1240px] mx-auto px-12 py-20 grid grid-cols-1 md:grid-cols-[55fr_45fr] gap-12 items-center relative">
+
+        <!-- LEFT 55% — copy + icon panels + CTA -->
+        <div class="relative z-10">
+          <p class="text-[11px] uppercase tracking-[0.20em] mb-5" style="color:#C8A84B;">Verdant Reserve · spring drop</p>
+
+          <h1 class="font-editorial leading-[1.02] mb-7 italic font-light"
+              style="color:#C8A84B; font-size: 56px;">
+            Rooted things,<br/>
+            <span class="not-italic" style="color:#E8D5B0;">selected by hand.</span>
+          </h1>
+
+          <p class="text-[15px] leading-[1.65] max-w-[460px] mb-9" style="color:#E8D5B0;">
+            A small, slow collection of statement botanicals and ceramic vessels —
+            each piece selected after its third season, packed in cushioned crates,
+            shipped to your door with care notes from the grower.
+          </p>
+
+          <!-- 2x2 circular icon panels (rgba(45,90,61,0.7) — the only allowed translucency) -->
+          <div class="grid grid-cols-4 gap-3 mb-10 max-w-[400px]">
+            <div class="flex flex-col items-center text-center">
+              <div class="mb-2 flex items-center justify-center"
+                   style="width:64px; height:64px; border-radius:50%; background: rgba(45,90,61,0.7);">
+                <span class="text-[20px]" style="color:#C8A84B;">✦</span>
+              </div>
+              <div class="text-[10px] uppercase tracking-wider" style="color:#E8D5B0;">third<br/>season</div>
+            </div>
+            <div class="flex flex-col items-center text-center">
+              <div class="mb-2 flex items-center justify-center"
+                   style="width:64px; height:64px; border-radius:50%; background: rgba(45,90,61,0.7);">
+                <span class="text-[20px]" style="color:#C8A84B;">◐</span>
+              </div>
+              <div class="text-[10px] uppercase tracking-wider" style="color:#E8D5B0;">hand<br/>potted</div>
+            </div>
+            <div class="flex flex-col items-center text-center">
+              <div class="mb-2 flex items-center justify-center"
+                   style="width:64px; height:64px; border-radius:50%; background: rgba(45,90,61,0.7);">
+                <span class="text-[18px]" style="color:#C8A84B;">⌖</span>
+              </div>
+              <div class="text-[10px] uppercase tracking-wider" style="color:#E8D5B0;">grower<br/>notes</div>
+            </div>
+            <div class="flex flex-col items-center text-center">
+              <div class="mb-2 flex items-center justify-center"
+                   style="width:64px; height:64px; border-radius:50%; background: rgba(45,90,61,0.7);">
+                <span class="text-[20px]" style="color:#C8A84B;">◇</span>
+              </div>
+              <div class="text-[10px] uppercase tracking-wider" style="color:#E8D5B0;">crated<br/>shipping</div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <a href="#shop"
+               class="inline-block text-[13px] font-medium tracking-wide px-7 py-3 rounded-full no-underline"
+               style="background:#2D5A3D; color:#E8D5B0; border: 1px solid #C8A84B;">
+              Browse the collection
+            </a>
+            <a href="#story" class="text-[13px] tracking-wide" style="color:#E8D5B0;">
+              Read the field notes →
+            </a>
+          </div>
+        </div>
+
+        <!-- RIGHT 45% — tropical plant staged, bg already baked #1A3D2B -->
+        <div class="relative h-full min-h-[520px]">
+          <img
+            src="/assets/tropical-plant-roots.png"
+            alt=""
+            class="absolute"
+            style="bottom: -40px; right: -32px; width: 520px; height: auto; filter: drop-shadow(0 12px 32px rgba(0,0,0,0.40));"
+            aria-hidden="true"
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Below-fold: featured product strip on same dark bg ────────────── -->
+    <section class="vrec-darkstudiosection w-full" style="padding: 64px 0 96px;">
+      <div class="max-w-[1240px] mx-auto px-12">
+        <div class="flex items-end justify-between mb-10">
+          <h2 class="font-editorial italic font-light" style="color:#C8A84B; font-size: 36px;">Recently added</h2>
+          <a href="#all" class="text-[12px] tracking-wider uppercase" style="color:#E8D5B0;">View all →</a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- featured product card with pampas vase asset; bg already baked dark green -->
+          <article class="vrec-darkproductcard overflow-hidden" style="width: 100%;">
+            <img src="/assets/pampas-vase.png" alt="" class="block w-full h-auto" aria-hidden="true" />
+            <div class="px-5 pt-4 pb-5">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] uppercase tracking-[0.15em] px-2 py-0.5 rounded"
+                      style="background:#C0392B; color:#E8D5B0;">new</span>
+                <span class="text-[14px] tabular-nums" style="color:#C8A84B;">$148</span>
+              </div>
+              <h3 class="font-editorial italic text-[20px] mb-1" style="color:#E8D5B0;">Cream stoneware vase</h3>
+              <p class="text-[12px] opacity-70" style="color:#E8D5B0;">Hand-thrown · 32cm · pampas not included</p>
+            </div>
+          </article>
+
+          <!-- 2 more placeholder cards (no new assets — just to fill the grid for layout reading) -->
+          <article class="vrec-darkproductcard flex flex-col" style="width: 100%; min-height: 360px;">
+            <div class="flex-1 flex items-center justify-center" style="background:#1A3D2B;">
+              <span class="font-editorial italic text-[80px]" style="color:#C8A84B; opacity: 0.4;">III</span>
+            </div>
+            <div class="px-5 pt-4 pb-5">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] uppercase tracking-[0.15em]" style="color:#C8A84B;">curated set</span>
+                <span class="text-[14px] tabular-nums" style="color:#C8A84B;">$240</span>
+              </div>
+              <h3 class="font-editorial italic text-[20px] mb-1" style="color:#E8D5B0;">Field-cut trio</h3>
+              <p class="text-[12px] opacity-70" style="color:#E8D5B0;">Three botanicals · grower's selection</p>
+            </div>
+          </article>
+
+          <article class="vrec-darkproductcard flex flex-col" style="width: 100%; min-height: 360px;">
+            <div class="flex-1 flex items-center justify-center" style="background:#1A3D2B;">
+              <span class="font-editorial italic text-[80px]" style="color:#C8A84B; opacity: 0.4;">◌</span>
+            </div>
+            <div class="px-5 pt-4 pb-5">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] uppercase tracking-[0.15em] px-2 py-0.5 rounded"
+                      style="background:#C0392B; color:#E8D5B0;">last 3</span>
+                <span class="text-[14px] tabular-nums" style="color:#C8A84B;">$96</span>
+              </div>
+              <h3 class="font-editorial italic text-[20px] mb-1" style="color:#E8D5B0;">Restock chamber</h3>
+              <p class="text-[12px] opacity-70" style="color:#E8D5B0;">Ceramic · oxidized clay glaze</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+  </body>
+</html>

@@ -1,0 +1,18 @@
+/* Vite entry CSS for the validation sandbox.
+ * Pulls in Tailwind base + the M3 recipes.css verbatim.
+ *
+ * The recipes.css uses @layer recipes-cluster-*; @layer order is established
+ * at the top of that file. We're focused on Cluster 1 today (Matte Clay 3D
+ * Botanical Diorama UI) — its layer is recipes-cluster-matte-clay-3d-botanical-diorama-ui.
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* M3 recipes — loaded via separate <link> in index.html (findings #5: postcss strips
+ * @import). Keeping this file Tailwind-only avoids a Vite/PostCSS gotcha. */
+
+/* Reset a few things that interfere with the diorama hero (sandbox-only). */
+html, body { background: #F0E6DC; }
+body { font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
