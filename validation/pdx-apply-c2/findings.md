@@ -106,9 +106,25 @@ warmer than the original C2 home page.**
 4. **All page H1s in Source Han Serif Regular**, not Bold. The
    restraint preserves the contemplative-not-古籍 register.
 
-### What was deliberately not done
+### Home retrofit (2026-05-25)
 
-- **Did NOT retrofit the home page (`after-c2.html`)** with C5 fonts.
-  Kept the original (PingFang-only) so the comparison "what does the
-  font swap actually change?" is visible across the same chrome.
-  If user prefers, this is a one-edit follow-up.
+`after-c2.html` was subsequently retrofitted to use the same C5 font
+stack so the 5 pages now share consistent typography. Diff was small:
+~30 inserted lines (font tokens + a hero tagline class + serif
+font-family on H1 and section titles), nothing else changed. The
+comparison "what did the font swap change?" is documented here:
+
+**Before (PingFang-only)**: read as "Apple Health for plants" — clean,
+calm, slightly clinical. The neumorphic depth controls dominated the
+emotional register.
+
+**After (C5 stack — Source Han Serif Regular H1 + STKaiti tagline
+'邻里有余 · 便有客人' + PingFang body)**: same surgical neumorphic
+chrome, but humanist typography anchors the page. Register shifts
+from "iOS calm modern" to "contemplative neighbor". User names stay
+PingFang sans (AP-4 respected). H1 stays Regular weight (AP-2
+respected). Section titles 供/求 picked up serif Medium for sectional
+rhythm vs the hero Regular.
+
+Net effect: warmer than the original C2 home without losing any of
+the neumorphic clarity. The font swap was the right call.

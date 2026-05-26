@@ -57,11 +57,20 @@
 
   --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:24px;
 
-  --font-zh: "PingFang SC", "Source Han Sans SC", -apple-system, sans-serif;
+  /* Cluster 5 typography stack (user-preferred 2026-05-23, retrofitted
+     to home 2026-05-25 for consistency with pages/*.html). Discipline:
+       - --font-display at Regular weight only (NOT Bold — AP-2 trap)
+       - --font-script for single accent moments only
+       - --font-body for body + user names (AP-4) */
+  --font-display: "Source Han Serif SC", "Noto Serif SC", "Songti SC",
+                  Georgia, ui-serif, serif;
+  --font-script:  "STKaiti", "KaiTi", "楷体", "Source Han Serif SC", serif;
+  --font-body:    "PingFang SC", "Source Han Sans SC", "Noto Sans SC",
+                  -apple-system, sans-serif;
 }
 
 html, body {
-  font-family: var(--font-zh);
+  font-family: var(--font-body);
   background: var(--bg-page);
   color: var(--text);
   font-size: var(--fs-sm);
@@ -99,12 +108,21 @@ html, body {
   font-size: 22px;
 }
 .hero-title {
+  font-family: var(--font-display);
   font-size: var(--fs-display);
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  line-height: 1.15;
+  font-weight: 400;   /* Regular — NOT bold (AP-2: serif Chinese Bold reads as 古籍 heritage) */
+  letter-spacing: -0.005em;
+  line-height: 1.2;
   margin: 0;
   color: var(--text);
+}
+.hero-tagline {
+  font-family: var(--font-script);
+  color: var(--text-secondary);
+  font-size: var(--fs-md);
+  letter-spacing: 0.05em;
+  margin: 2px 0 6px;
+  padding-left: 4px;
 }
 .hero-sub {
   font-size: var(--fs-sm);
@@ -172,8 +190,9 @@ html, body {
   display: flex;
   align-items: center;
   gap: var(--sp-2);
-  font-size: var(--fs-lg);
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 500;   /* Medium — gives sectional rhythm vs hero Regular */
   color: var(--text);
   margin: 0;
 }
@@ -313,7 +332,10 @@ html, body {
 
   <div class="hero">
     <div class="brand-mark">🌿</div>
-    <h1 class="hero-title">菜友集市</h1>
+    <div>
+      <h1 class="hero-title">菜友集市</h1>
+      <div class="hero-tagline">邻里有余 · 便有客人</div>
+    </div>
   </div>
   <p class="hero-sub">
     周末菜友大会 · 5 月 24 日 11:00–14:30 · 📍 <a class="pin">Tushita Farm</a>
@@ -407,7 +429,8 @@ html, body {
     • Background shifted to <code>#E8E4D9</code> warm-neutral so dual shadow (light from upper-left + dark from lower-right) reads.<br>
     • Primary CTA stays filled dark-green (NOT pure neumorphic) — pure neumorphic on a dark fill loses the light side of the shadow and becomes a flat blob. This is a known constraint of neumorphic on filled buttons.<br>
     • Accessibility cost vs Cluster 1: secondary "我想获得" button has lower affordance than C1's chunky 3D button; press state must visibly change to compensate.<br>
-    • Layout invariants preserved: ≥44×44 touch targets, flex-row 80×80 thumb cards, color-semantic tags, section ordering.
+    • Layout invariants preserved: ≥44×44 touch targets, flex-row 80×80 thumb cards, color-semantic tags, section ordering.<br>
+    • <strong>2026-05-25 retrofit</strong>: typography stack swapped from PingFang-only to Cluster 5's combo (Source Han Serif Regular for H1 + 供/求 section titles · STKaiti single-accent for "邻里有余 · 便有客人" tagline · PingFang for body and all user-generated names). The H1 stays at Regular weight (not Bold) per AP-2; user names ("Fanding"/"乐乐"/"李大草") stay in plain sans per AP-4. Net effect: same surgical neumorphic chrome, warmer humanist register — closer to "contemplative neighbor" than the original "iOS calm modern".
   </div>
 
 </div>
